@@ -70,9 +70,15 @@ class _CekpelamarState extends State<Cekpelamar> {
                   ],
                 ),
               ),
+              SizedBox(
+                height: 30,
+              ),
+              searchBarPelamarPekerjaan(),
+              SizedBox(
+                height: 100,
+              ),
             ],
           )),
-      //bottomNavigationBar: navbarComponent(),
     );
   }
 }

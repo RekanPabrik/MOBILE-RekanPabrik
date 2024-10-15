@@ -1,16 +1,28 @@
-# rekanpabrik
 
-A new Flutter project.
+## RekanPabrik Mobile
+Untuk memenuhi Tugas Besar Pemrograman Perangkat Bergerak (PPB)
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
+# Contributing
+**Team Kosan KPK**
 
-A few resources to get you started if this is your first Flutter project:
+|**Nama**| **NIM** |  
+|:-------|:-----------:|
+|RAKEAN JATI PERMANA|1302220115|
+|MUHAMMAD RAFIF ARYASATYA PURNOMO|1302220003|
+|ALBIYANA DAFFA AKBAR PRADIPA|1302220014 |
+|IRJI SYAHRUL BIL MUTHAHIR|1302220115 |
+|NAUFAL BAIHAQY AMIRULASAD|1302220103 |
+|MIKAIL RADHI BILLAH|1302223021 |
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Installation
+
+Install RekanPabrik depedencies with flutter
+
+```bash
+  git clone [repository link]
+  cd RekanPabrik
+  flutter pub get
+```
+    
