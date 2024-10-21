@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:rekanpabrik/components/searchBarPelamarPekerjaan.dart';
 import 'package:rekanpabrik/utils/dataDummyPelamar.dart';
 import 'package:url_launcher/url_launcher.dart';

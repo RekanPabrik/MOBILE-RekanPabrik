@@ -19,6 +19,9 @@ class _ProfilePageState extends State<ProfilePage> {
       text: "Saya seorang Software Engineer dengan 2+ tahun pengalaman.");
   final String fotoIMG =
       "https://firebasestorage.googleapis.com/v0/b/proyek-tingkat.appspot.com/o/foto-profile-user%2F1727209252774_.png?alt=media&token=f572040b-895b-449b-bdc1-d4f52badc483";
+  final String defaultFotoIMG =
+      "https://firebasestorage.googleapis.com/v0/b/proyek-tingkat.appspot.com/o/foto-profile-user%2F1727209252774_.png?alt=media&token=f572040b-895b-449b-bdc1-d4f52badc483";
+  
 
   String cvStatus = '';
 
@@ -28,6 +31,9 @@ class _ProfilePageState extends State<ProfilePage> {
   Uri? _cvURL;
 
   String? selectedCV;
+
+  File? _imageFile; // Variabel untuk menyimpan file gambar yang dipilih
+  final ImagePicker _picker = ImagePicker(); // Inisialisasi ImagePicker
 
   void cekCV(String? existingCV) {
     if (existingCV == null || existingCV.isEmpty) {
@@ -88,6 +94,17 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+    // Fungsi untuk memilih gambar dari galeri
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path); // Simpan gambar yang dipilih
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -110,7 +127,23 @@ class _ProfilePageState extends State<ProfilePage> {
             // Foto profil
             CircleAvatar(
               radius: 80,
-              backgroundImage: NetworkImage(fotoIMG), // Ganti dengan foto asli
+              backgroundImage: _imageFile == null
+                  ? NetworkImage(defaultFotoIMG) // Jika belum ada file gambar yang dipilih, gunakan URL default
+                  : FileImage(_imageFile!) as ImageProvider, // Jika sudah ada, gunakan gambar yang dipilih
+            ),
+
+             const SizedBox(height: 20),
+            // Button lingkaran untuk mengganti foto profil
+            InkWell(
+              onTap: _pickImage, // Fungsi untuk memilih foto dari galeri
+              child: CircleAvatar(
+                radius: 20,
+                backgroundColor: Colors.grey,
+                child: const Icon(
+                  Icons.camera_alt,
+                  color: Colors.white,
+                ),
+              ),
             ),
             const SizedBox(height: 20),
 
