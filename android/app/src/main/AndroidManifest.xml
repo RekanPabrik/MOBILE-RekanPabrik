@@ -5,7 +5,9 @@
     <application
         android:label="rekanpabrik"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:enableOnBackInvokedCallback="true"
+        >
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -27,6 +29,8 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+             <receiver android:name="com.dexterous.flutterlocalnotifications.receivers.ActionBroadcastReceiver"/>
+        <meta-data android:name="com.google.firebase.messaging.default_notification_channel_id" android:value="job_channel"/>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

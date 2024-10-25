@@ -2,8 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:rekanpabrik/components/searchBarPelamarPekerjaan.dart';
+import 'package:rekanpabrik/models/postingPekerjaan.dart';
 import 'package:rekanpabrik/utils/dataDummyPelamar.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:file_picker/file_picker.dart';
@@ -64,3 +66,4 @@ part 'HRD/profileHRD.dart';
 part 'HRD/cekpelamar.dart';
 part 'HRD/postJob.dart';
 part 'HRD/detailPelamar.dart';
+part 'HRD/detailPekerjaanHRD.dart';
