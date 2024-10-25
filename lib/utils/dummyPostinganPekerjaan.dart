@@ -98,7 +98,7 @@ List<Map<String, dynamic>> dummyPostPekerjaan = [
     'job_details': 'Mengelola rekrutmen dan kesejahteraan karyawan.',
     'requirements':
         'Pengalaman dalam manajemen SDM. Mampu bekerja dengan baik di tim.',
-    'status': 'tersedia',
+    'status': 'berakhir',
     'createdAt': DateTime.parse('2024-10-09'), // Mengubah menjadi DateTime
   },
   {
@@ -110,7 +110,7 @@ List<Map<String, dynamic>> dummyPostPekerjaan = [
         'Bertanggung jawab untuk menjual produk dan layanan perusahaan.',
     'requirements':
         'Pengalaman di bidang penjualan. Mampu bekerja dengan target penjualan.',
-    'status': 'tersedia',
+    'status': 'berakhir',
     'createdAt': DateTime.parse('2024-10-10'), // Mengubah menjadi DateTime
   },
 ];
