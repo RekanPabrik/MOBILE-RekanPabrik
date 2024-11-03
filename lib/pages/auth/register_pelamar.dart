@@ -95,8 +95,11 @@ class _registerPelamarState extends State<register_pelamar> {
               alignment: Alignment.centerLeft,
               child: ElevatedButton(
                 onPressed: () {
-                  // Tambahkan aksi untuk pembuatan akun HRD
-                },
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => register_hrd()),
+                    );
+                  },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: thirdColor, // Warna tombol
                   padding: EdgeInsets.symmetric(
