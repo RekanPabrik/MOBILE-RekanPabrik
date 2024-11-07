@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:rekanpabrik/components/companyName_input.dart';
 import 'package:rekanpabrik/components/searchBarPelamarPekerjaan.dart';
 import 'package:rekanpabrik/models/postingPekerjaan.dart';
 import 'package:rekanpabrik/utils/dataDummyPelamar.dart';
@@ -45,6 +46,7 @@ part 'wellcomePage.dart';
 // UTILS
 part 'auth/register_pelamar.dart';
 part 'auth/login_page.dart';
+part 'auth/register_hrd.dart';
 
 // PELAMAR
 part 'pagePelamar/home_pelamar.dart';
