@@ -1,14 +1,75 @@
 part of '../page.dart';
 
-class LamarPekerjaan extends StatelessWidget {
+class LamarPekerjaan extends StatefulWidget {
   final int jobId;
 
   const LamarPekerjaan({super.key, required this.jobId});
 
   @override
+  State<LamarPekerjaan> createState() => _LamarPekerjaanState();
+}
+
+class _LamarPekerjaanState extends State<LamarPekerjaan> {
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeNotifications();
+    _requestNotificationPermission();
+  }
+
+  void _initializeNotifications() async {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    const InitializationSettings initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
+
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+  void _requestNotificationPermission() async {
+    final bool? granted = await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.requestNotificationsPermission();
+
+    if (granted != null && !granted) {
+      print("Izin notifikasi ditolak oleh pengguna");
+    }
+  }
+
+  void _showJobApplicationNotification(String jobTitle) async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      'job_channel',
+      'Job Application Notifications',
+      channelDescription: 'Notifications for job applications',
+      importance: Importance.max,
+      priority: Priority.high,
+      ticker: 'ticker',
+    );
+
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+    );
+
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      'Lamaran Diajukan',
+      'Anda telah melamar pekerjaan: $jobTitle',
+      platformChannelSpecifics,
+    );
+  }
+
+
+  
+  @override
   Widget build(BuildContext context) {
     final selectedJob = dummyPostPekerjaan.firstWhere(
-      (job) => job['id_post_pekerjaan'] == jobId,
+      (job) => job['id_post_pekerjaan'] == widget.jobId,
       orElse: () => {'id_post_pekerjaan': 0},
     );
 
@@ -201,6 +262,7 @@ class LamarPekerjaan extends StatelessWidget {
                 Align(
                   child: ElevatedButton(
                     onPressed: () {
+                      _showJobApplicationNotification(selectedJob['posisi']);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Lamaran Anda telah diajukan!')),
                       );

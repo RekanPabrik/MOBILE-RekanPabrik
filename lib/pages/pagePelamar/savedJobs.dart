@@ -8,7 +8,9 @@ class savedJobs extends StatefulWidget {
 }
 
 class _savedJobsState extends State<savedJobs> {
+
   @override
+
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: primaryColor,
