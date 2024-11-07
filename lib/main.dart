@@ -7,7 +7,6 @@ import 'package:rekanpabrik/pages/page.dart';
 import 'package:rekanpabrik/pages/testAPI.dart';
 import 'package:rekanpabrik/shared/shared.dart';
 
-
 void main() async {
   await dotenv.load(fileName: ".env");
   runApp(const MyApp());

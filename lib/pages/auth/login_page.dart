@@ -182,7 +182,7 @@ class _loginPageState extends State<login_page> {
   }
 
   void testing2() {
-    Navigator.pushNamed(context, '/pageHRD');
+    Navigator.pushNamed(context, '/pagePelamar');
   }
 
   @override
