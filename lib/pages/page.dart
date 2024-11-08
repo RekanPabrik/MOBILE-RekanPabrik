@@ -4,10 +4,13 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:rekanpabrik/api/loginAPI.dart';
+import 'package:rekanpabrik/api/meAPI.dart';
 import 'package:rekanpabrik/components/companyName_input.dart';
 import 'package:rekanpabrik/components/searchBarPelamarPekerjaan.dart';
 import 'package:rekanpabrik/models/postingPekerjaan.dart';
 import 'package:rekanpabrik/utils/dataDummyPelamar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:file_picker/file_picker.dart';
 
