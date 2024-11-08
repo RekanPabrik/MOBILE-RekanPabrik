@@ -19,9 +19,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData( 
+      theme: ThemeData(
           fontFamily: 'poppins',
-          canvasColor: thirdColor,  
+          canvasColor: thirdColor,
           primaryColor: primaryColor,
           appBarTheme: AppBarTheme(backgroundColor: primaryColor),
           bottomNavigationBarTheme: BottomNavigationBarThemeData(

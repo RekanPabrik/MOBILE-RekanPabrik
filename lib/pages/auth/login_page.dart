@@ -8,13 +8,13 @@ class login_page extends StatefulWidget {
 class _loginPageState extends State<login_page> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController EmailController = TextEditingController();
+  final LoginAPI loginapi = LoginAPI();
+  final meAPI meapi = meAPI();
   String emailErrorMessage = '';
   String passErrorMessage = '';
   bool mailIsEror = false;
   bool passIsEror = false;
   bool isLoading = false;
-
-  AuthService authService = AuthService();
 
   bool isEmailValid(String email) {
     return email.contains('@');
@@ -37,7 +37,6 @@ class _loginPageState extends State<login_page> {
       isLoading = true;
     });
 
-    // Validate email and password
     if (!isEmailValid(email)) {
       setState(() {
         emailErrorMessage = 'Email harus mengandung "@"';
@@ -56,46 +55,32 @@ class _loginPageState extends State<login_page> {
       return;
     }
 
-    // Call login API
-    var response = await authService.login(email, pass);
-    String role = response['user']?['role'] ?? '';
+    var response = await loginapi.login(email, pass);
 
-    if (response['massage'] == "Login succesful") {
-      if (role == 'admin') {
-        Navigator.pushNamed(context, '/');
-      } else if (role == 'perusahaan') {
-        Perusahaan newPerusahaan = Perusahaan(
-            idPerusahaan: response['user']['id_perusahaan'],
-            email: response['user']['email'],
-            password: response['user']['password'],
-            role: response['user']['role'],
-            namaPerusahaan: response['user']['nama_perusahaan'],
-            aboutMe: response['user']['about_me'],
-            profilePict: response['user']['profile_pict'],
-            alamat: response['user']['alamat']);
-      } else if (role == 'pelamar') {
-        Pelamar newPelamar = Pelamar(
-            idPelamar: response['user']['id_pelamar'],
-            email: response['user']['email'],
-            password: response['user']['password'],
-            role: response['user']['role'],
-            firstName: response['user']['first_name'],
-            lastName: response['user']['last_name'],
-            aboutMe: response['user']['about_me'],
-            curriculumVitae: response['user']['curriculum_vitae'],
-            dateBirth: response['user']['date_birth'] != null
-                ? DateTime.parse(response['user']['date_birth'])
-                : null, // Pastikan ini terkonversi dari string ke DateTime
-            profilePict: response['user']['profile_pict']);
+    if (response['status'] == true) {
+      var user = await meapi.getUserProfile();
+      print(user);
 
-        // Navigasi ke halaman baru dan pass data Pelamar
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) => navbarComponent(
-                  // newPelamar: newPelamar,
-                  )),
-        );
+      if (user['status'] == true && user['data'] != null) {
+        String role = user['data'][0][0]['role'];
+
+        if (role == 'pelamar') {
+          Navigator.pushNamed(context, '/pagePelamar');
+        } else if (role == 'perusahaan') {
+          Navigator.pushNamed(context, '/pageHRD');
+        } else {
+          Navigator.pushNamed(context, '/');
+        }
+      } else {
+        print('User profile retrieval failed: ${user['message']}');
+        setState(() {
+          emailErrorMessage = "Username or password is incorrect";
+          passErrorMessage = "Username or password is incorrect";
+
+          mailIsEror = true;
+          passIsEror = true;
+          isLoading = false;
+        });
       }
     } else {
       setState(() {
@@ -103,77 +88,7 @@ class _loginPageState extends State<login_page> {
             response['massage'] ?? "Username or password is incorrect";
         passErrorMessage =
             response['massage'] ?? "Username or password is incorrect";
-        mailIsEror = true;
-        passIsEror = true;
-        isLoading = false;
-      });
-    }
-  }
 
-  void testing(String email, String pass) {
-    bool akunKetemu = false;
-    setState(() {
-      emailErrorMessage = '';
-      passErrorMessage = '';
-      mailIsEror = false;
-      passIsEror = false;
-      isLoading = true;
-    });
-
-    if (cekEmailnPass(email, pass)) {
-      setState(() {
-        emailErrorMessage = '';
-        passErrorMessage = '';
-        mailIsEror = false;
-        passIsEror = false;
-        isLoading = true;
-      });
-
-      // Validate email and password
-      if (!isEmailValid(email)) {
-        setState(() {
-          emailErrorMessage = 'Email harus mengandung "@"';
-          mailIsEror = true;
-          isLoading = false;
-        });
-        return;
-      }
-
-      if (!isPassValid(pass)) {
-        setState(() {
-          passErrorMessage = 'Password tidak boleh kosong';
-          passIsEror = true;
-          isLoading = false;
-        });
-        return;
-      }
-
-      for (var akun in dummyAccounts) {
-        if (akun['email'] == email && akun['password'] == pass) {
-          akunKetemu = true;
-          if (akun['role'] == 'admin') {
-            Navigator.pushNamed(context, '/');
-          } else if (akun['role'] == 'HRD') {
-            Navigator.pushNamed(context, '/');
-          } else if (akun['role'] == 'pelamar') {
-            Navigator.pushNamed(context, '/pagePelamar');
-          }
-          break;
-        }
-      }
-
-      if (!akunKetemu) {
-        setState(() {
-          emailErrorMessage = 'Invalid email or password';
-          passErrorMessage = 'Invalid email or password';
-          passIsEror = true;
-          mailIsEror = true;
-        });
-      }
-    } else {
-      setState(() {
-        emailErrorMessage = 'email dan password tidak boleh kosong';
-        passErrorMessage = 'email dan password tidak boleh kosong';
         mailIsEror = true;
         passIsEror = true;
         isLoading = false;
@@ -182,7 +97,7 @@ class _loginPageState extends State<login_page> {
   }
 
   void testing2() {
-    Navigator.pushNamed(context, '/pageHRD');
+    Navigator.pushNamed(context, '/pagePelamar');
   }
 
   @override
@@ -299,9 +214,7 @@ class _loginPageState extends State<login_page> {
                       onPressed: () {
                         String email = EmailController.text.trim();
                         String pass = passwordController.text.trim();
-                        // LoginUser(email, pass);
-                        // testing(email, pass);
-                        testing2();
+                        LoginUser(email, pass);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: thirdColor,
