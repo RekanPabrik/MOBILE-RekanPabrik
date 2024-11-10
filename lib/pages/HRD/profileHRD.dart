@@ -1,6 +1,5 @@
 part of '../page.dart';
 
-
 class Profilehrd extends StatefulWidget {
   const Profilehrd({super.key});
 
@@ -11,38 +10,82 @@ class Profilehrd extends StatefulWidget {
 class _ProfilehrdState extends State<Profilehrd> {
   // TextEditingControllers untuk input data pengguna
   final TextEditingController namaPerusahaanController =
-      TextEditingController(text: "PT.RekanKerja");
+      TextEditingController();
   final TextEditingController alamatPerusahaanController =
-      TextEditingController(text: "Jln.kita bersama No. 77");
-  final TextEditingController emailController =
-      TextEditingController(text: "rekanKerjaBersama@example.com");
-  final TextEditingController tentangPerusahaanController = TextEditingController(
-      text:
-       "PT Rekan Kerja adalah perusahaan teknologi yang bergerak di bidang pengembangan aplikasi dan solusi digital. Sejak didirikan pada tahun 2024, kami berkomitmen untuk memberikan layanan inovatif dan transformasi digital yang mendukung kebutuhan informasi pekerjaan di Indonesia."
-      );
-  final String fotoIMG =
-      "https://firebasestorage.googleapis.com/v0/b/proyek-tingkat.appspot.com/o/foto-profile-user%2F1727209252774_.png?alt=media&token=f572040b-895b-449b-bdc1-d4f52badc483";
-  final String defaultFotoIMG =
-      "https://firebasestorage.googleapis.com/v0/b/proyek-tingkat.appspot.com/o/foto-profile-user%2F1727209252774_.png?alt=media&token=f572040b-895b-449b-bdc1-d4f52badc483";
-  
-
-  
-  String cvStatus = '';
-
-  String existingCV = "";
-  Uri? _cvURL;
-
-  String? selectedCV;
-
-File? _imageFile; // Variabel untuk menyimpan file gambar yang dipilih
-  final ImagePicker _picker = ImagePicker(); // Inisialisasi ImagePicker
+      TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController tentangPerusahaanController =
+      TextEditingController();
+  final String defaultFotoIMG = 'assets/img/defaultPict.png';
+  final ImagePicker _picker = ImagePicker();
+  final LoginAPI loginapi = LoginAPI();
+  final meAPI meapi = meAPI();
+  final PerusahaanAPI perusahaanapi = PerusahaanAPI();
+  File? _imageFile;
+  var user;
 
   @override
   void initState() {
     super.initState();
+    initUser();
   }
 
-   // Fungsi untuk memilih gambar dari galeri
+  Future<void> initUser() async {
+    var response = await meapi.getUserProfile();
+
+    if (response['status'] == true && response['data'] != null) {
+      setState(() {
+        user = response['data'];
+        namaPerusahaanController.text =
+            user[0][0]['nama_perusahaan'].toString();
+        alamatPerusahaanController.text = user[0][0]['alamat'].toString();
+        emailController.text = user[0][0]['email'].toString();
+        tentangPerusahaanController.text = user[0][0]['about_me'].toString();
+      });
+    } else {
+      print("Failed to retrieve user data: ${response['message']}");
+    }
+  }
+
+  Future<void> _updateProfilePict() async {
+    final success = await perusahaanapi.updateProfilePicture(
+      idperusahaan: user[0][0]['id_perusahaan'].toString(),
+      imagePath: _imageFile?.path ?? user[0][0]['profile_pict'],
+    );
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('foto profile berhasil diperbarui!')));
+      Navigator.pushNamed(context, '/pageHRD');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal memperbarui foto profile')));
+    }
+  }
+
+  Future<void> _updateProfileData() async {
+    final success = await perusahaanapi.updateProfileData(
+        idperusahaan: user[0][0]['id_perusahaan'],
+        email: emailController.text,
+        namaPerusahaan: namaPerusahaanController.text,
+        tentangPerusahaan: tentangPerusahaanController.text,
+        alamatPerusahaan: alamatPerusahaanController.text);
+
+    if (success) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('foto berhasil diperbarui!')));
+      Navigator.pushNamed(context, '/pageHRD');
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Gagal memperbarui foto ')));
+    }
+  }
+
+  void updateProfile() {
+    _updateProfilePict;
+    _updateProfileData;
+  }
+
+  // Fungsi untuk memilih gambar dari galeri
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
 
@@ -51,27 +94,6 @@ File? _imageFile; // Variabel untuk menyimpan file gambar yang dipilih
         _imageFile = File(pickedFile.path); // Simpan gambar yang dipilih
       });
     }
-  }
-
-  // Fungsi untuk mengunduh CV
-  Future<void> _launchCV() async {
-    if (_cvURL != null) {
-      await launchUrl(_cvURL!, mode: LaunchMode.externalApplication);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Mengunduh CV...')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('CV TIDAK ADA...')),
-      );
-    }
-  }
-
-  // Fungsi untuk menyimpan perubahan profil
-  void saveProfile() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Profil berhasil diperbarui!')),
-    );
   }
 
   @override
@@ -83,13 +105,16 @@ File? _imageFile; // Variabel untuk menyimpan file gambar yang dipilih
         child: ListView(
           padding: EdgeInsets.symmetric(horizontal: 10),
           children: [
-      const SizedBox(height: 30),
+            const SizedBox(height: 30),
             // Foto profil
             CircleAvatar(
               radius: 80,
               backgroundImage: _imageFile == null
-                  ? NetworkImage(defaultFotoIMG) // Jika belum ada file gambar yang dipilih, gunakan URL default
-                  : FileImage(_imageFile!) as ImageProvider, // Jika sudah ada, gunakan gambar yang dipilih
+                  ? (user?[0][0]['profile_pict'] != null
+                      ? NetworkImage(user[0][0]['profile_pict'])
+                          as ImageProvider
+                      : AssetImage(defaultFotoIMG) as ImageProvider)
+                  : FileImage(_imageFile!),
             ),
             const SizedBox(height: 20),
             // Button lingkaran untuk mengganti foto profil
@@ -121,7 +146,7 @@ File? _imageFile; // Variabel untuk menyimpan file gambar yang dipilih
               controller: alamatPerusahaanController,
               decoration: const InputDecoration(
                 labelText: "Alamat Perusahaan",
-                border:OutlineInputBorder(),
+                border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16),
@@ -166,7 +191,9 @@ File? _imageFile; // Variabel untuk menyimpan file gambar yang dipilih
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: succesColor),
-                onPressed: saveProfile,
+                onPressed: () {
+                  updateProfile();
+                },
                 child: Text(
                   "Simpan Perubahan",
                   style: TextStyle(

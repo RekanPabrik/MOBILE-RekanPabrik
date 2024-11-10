@@ -8,50 +8,82 @@ class Posthistory extends StatefulWidget {
 }
 
 class _PosthistoryState extends State<Posthistory> {
-  List<PostingPekerjaan> results = [];
-  String selectedFilter = 'Tanggal Terbaru'; // Default filter option
+  final meAPI meapi = meAPI();
+  final Postingpekerjaanapi postpekerjaanapi = Postingpekerjaanapi();
+  var user;
+
+  List<Map<String, dynamic>> resultsJob = [];
+  String selectedFilter = 'Tanggal Terbaru';
+  bool isLoading = true; // Variabel untuk melacak status loading
 
   @override
   void initState() {
     super.initState();
-    results = dummyPostPekerjaan.map((job) {
-      return PostingPekerjaan(
-        idPostPekerjaan: job['id_post_pekerjaan'],
-        idPerusahaan: job['id_perusahaan'],
-        posisi: job['posisi'],
-        lokasi: job['lokasi'],
-        jobDetails: job['job_details'],
-        requirements: job['requirements'],
-        status: job['status'],
-        createdAt: job['createdAt'],
-      );
-    }).toList();
-    _sortResults(); // Sort default by date
+    _fetchPostPekerjaan();
+  }
+
+  Future<void> initUser() async {
+    var response = await meapi.getUserProfile();
+
+    if (response['status'] == true && response['data'] != null) {
+      setState(() {
+        user = response['data'];
+      });
+    } else {
+      print("Failed to retrieve user data: ${response['message']}");
+    }
+  }
+
+  Future<void> _fetchPostPekerjaan() async {
+    setState(() {
+      isLoading = true; // Mulai loading
+    });
+
+    await initUser();
+    if (user == null || user.isEmpty) {
+      print("User data belum tersedia");
+    }
+    try {
+      final data =
+          await postpekerjaanapi.getPostPekerjaan(user[0][0]['id_perusahaan']);
+
+      setState(() {
+        resultsJob = data;
+      });
+
+      _sortResults(); // Panggil fungsi sort setelah mendapatkan data
+    } catch (e) {
+      print("Error fetching job postings: $e");
+    } finally {
+      setState(() {
+        isLoading = false; // Akhiri loading setelah data diambil
+      });
+    }
   }
 
   void _sortResults() {
     setState(() {
       if (selectedFilter == 'Tanggal Terbaru') {
-        results.sort(
-            (a, b) => b.createdAt.compareTo(a.createdAt)); // Descending by date
+        resultsJob.sort((a, b) => DateTime.parse(b['createdAt'])
+            .compareTo(DateTime.parse(a['createdAt'])));
       } else if (selectedFilter == 'Status Tersedia') {
-        results.sort((a, b) {
-          if (a.status == 'tersedia' && b.status != 'tersedia') {
-            return -1; // 'tersedia' comes first
-          } else if (a.status != 'tersedia' && b.status == 'tersedia') {
-            return 1; // 'tersedia' comes first
+        resultsJob.sort((a, b) {
+          if (a['status'] == 'tersedia' && b['status'] != 'tersedia') {
+            return -1;
+          } else if (a['status'] != 'tersedia' && b['status'] == 'tersedia') {
+            return 1;
           } else {
-            return 0; // status is the same
+            return 0;
           }
         });
       } else if (selectedFilter == 'Status berakhir') {
-        results.sort((a, b) {
-          if (a.status == 'berakhir' && b.status != 'berakhir') {
-            return -1; // 'berakhir' comes first
-          } else if (a.status != 'berakhir' && b.status == 'berakhir') {
-            return 1; // 'berakhir' comes first
+        resultsJob.sort((a, b) {
+          if (a['status'] == 'berakhir' && b['status'] != 'berakhir') {
+            return -1;
+          } else if (a['status'] != 'berakhir' && b['status'] == 'berakhir') {
+            return 1;
           } else {
-            return 0; // status is the same
+            return 0;
           }
         });
       }
@@ -130,68 +162,74 @@ class _PosthistoryState extends State<Posthistory> {
                         _sortResults(); // Update the sorting based on selection
                       });
                     },
-                    dropdownColor: Colors.white, // Background color dropdown
+                    dropdownColor: Colors.white,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: thirdColor, // Font color dropdown
+                      color: thirdColor,
                     ),
-                    borderRadius:
-                        BorderRadius.circular(12), // Border radius dropdown
+                    borderRadius: BorderRadius.circular(12),
                     hint: Text(
                       'Pilih Filter',
-                      style: TextStyle(color: Colors.grey), // Gaya teks hint
+                      style: TextStyle(color: Colors.grey),
                     ),
                   ),
                   const SizedBox(height: 20),
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
-                    height: 600,
-                    child: ListView.builder(
-                      itemCount: results.length,
-                      itemBuilder: (context, index) {
-                        return Container(
-                          margin: EdgeInsets.symmetric(
-                              vertical: 5), // Space between items
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                                color: Colors.grey), // Color of the border
-                            borderRadius:
-                                BorderRadius.circular(10), // Rounded corners
-                            color: Colors.white, // Background color
-                          ),
-                          child: InkWell(
-                            onTap: () {
-                              // Navigate to the detail page with the job ID
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => detailPekerjaanHRD(
-                                      jobId: results[index].idPostPekerjaan),
+                    height: 400,
+                    child: isLoading
+                        ? Center(
+                            child: CircularProgressIndicator(
+                            color: thirdColor,
+                          ))
+                        : ListView.builder(
+                            itemCount: resultsJob.length,
+                            itemBuilder: (context, index) {
+                              final job = resultsJob[index];
+                              final date = DateTime.parse(job['createdAt']);
+                              final formattedDate =
+                                  DateFormat('dd-MM-yyyy').format(date);
+                              return Container(
+                                margin: EdgeInsets.symmetric(vertical: 5),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Colors.white,
+                                ),
+                                child: InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            DetailPekerjaanHRD(
+                                                jobId:
+                                                    job['id_post_pekerjaan']),
+                                      ),
+                                    );
+                                  },
+                                  child: ListTile(
+                                    title: Text(job['posisi']),
+                                    subtitle: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text("Lokasi: ${job['lokasi']}"),
+                                        Text("Status: ${job['status']}"),
+                                        Text("Tanggal:$formattedDate"),
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               );
                             },
-                            child: ListTile(
-                              title: Text(results[index].posisi),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text("Lokasi: ${results[index].posisi}"),
-                                  Text("Status: ${results[index].status}"),
-                                  Text(
-                                      "Tanggal: ${results[index].createdAt.toLocal()}"),
-                                ],
-                              ),
-                            ),
                           ),
-                        );
-                      },
-                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 200),
+              const SizedBox(height: 100),
             ],
           )),
     );
