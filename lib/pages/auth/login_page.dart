@@ -182,7 +182,7 @@
     }
 
     void testing2() {
-      Navigator.pushNamed(context, '/pageHRD');
+      Navigator.pushNamed(context, '/pagePelamar');
     }
 
     @override
@@ -275,7 +275,7 @@
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => WellcomePage()),
+                      MaterialPageRoute(builder: (context) => ResetPassword()),
                     );
                   },
                   child: Text(

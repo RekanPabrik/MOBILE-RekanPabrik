@@ -186,10 +186,10 @@ class _registerHrdState extends State<register_hrd> {
                           "*Konfirmasi password tidak boleh kosong";
                       confirmPassIsEror = true;
                     } else{
-                      Navigator.push(
+                    Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => Homepagehrd()),
-                    );
+                      );
                     }
                   });
                 },

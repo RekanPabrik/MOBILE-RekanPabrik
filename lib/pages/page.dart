@@ -11,6 +11,7 @@ import 'package:rekanpabrik/utils/dataDummyPelamar.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:file_picker/file_picker.dart';
 
+
 // COMPONENTS
 import 'package:rekanpabrik/components/carousel.dart';
 import 'package:rekanpabrik/components/confirm_pass_input.dart';
@@ -47,6 +48,7 @@ part 'wellcomePage.dart';
 part 'auth/register_pelamar.dart';
 part 'auth/login_page.dart';
 part 'auth/register_hrd.dart';
+part 'auth/forgotPassword.dart';
 
 // PELAMAR
 part 'pagePelamar/home_pelamar.dart';
@@ -60,6 +62,7 @@ part 'pagePelamar/detailHistoryLamaran.dart';
 part 'pagePelamar/profilePage.dart';
 part 'pagePelamar/detailPerusahaan.dart';
 part 'pagePelamar/detailPekerjaan.dart';
+part 'pagePelamar/gantiProfilePicture.dart';
 
 //HRD
 part 'HRD/homepageHRD.dart';

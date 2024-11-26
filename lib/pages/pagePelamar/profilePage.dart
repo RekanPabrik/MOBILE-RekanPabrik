@@ -32,8 +32,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
   String? selectedCV;
 
-  File? _imageFile; // Variabel untuk menyimpan file gambar yang dipilih
-  final ImagePicker _picker = ImagePicker(); // Inisialisasi ImagePicker
 
   void cekCV(String? existingCV) {
     if (existingCV == null || existingCV.isEmpty) {
@@ -65,7 +63,7 @@ class _ProfilePageState extends State<ProfilePage> {
           SnackBar(content: Text('CV "${result.files.single.name}" dipilih!')),
         );
       }
-    } catch (e) {
+    } catch (e) { 
       debugPrint("Error saat memilih CV: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Gagal memilih CV: $e')),
@@ -94,17 +92,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-    // Fungsi untuk memilih gambar dari galeri
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      setState(() {
-        _imageFile = File(pickedFile.path); // Simpan gambar yang dipilih
-      });
-    }
-  }
-
   @override
   void initState() {
     super.initState();
@@ -127,15 +114,20 @@ class _ProfilePageState extends State<ProfilePage> {
             // Foto profil
             CircleAvatar(
               radius: 80,
-              backgroundImage: _imageFile == null
-                  ? NetworkImage(defaultFotoIMG) // Jika belum ada file gambar yang dipilih, gunakan URL default
-                  : FileImage(_imageFile!) as ImageProvider, // Jika sudah ada, gunakan gambar yang dipilih
+              // backgroundImage: _imageFile == null
+                  // ? NetworkImage(defaultFotoIMG) // Jika belum ada file gambar yang dipilih, gunakan URL default
+                  // : FileImage(_imageFile!) as ImageProvider, // Jika sudah ada, gunakan gambar yang dipilih
             ),
 
              const SizedBox(height: 20),
             // Button lingkaran untuk mengganti foto profil
             InkWell(
-              onTap: _pickImage, // Fungsi untuk memilih foto dari galeri
+              onTap:(){
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ProfilePicture()),
+                    );
+                  }, // Pindah page kalo di tekan ke gantiProfilePicture
               child: CircleAvatar(
                 radius: 20,
                 backgroundColor: Colors.grey,
