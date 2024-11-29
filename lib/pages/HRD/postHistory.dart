@@ -30,18 +30,27 @@ class _PosthistoryState extends State<Posthistory> {
         user = response['data'];
       });
     } else {
-      print("Failed to retrieve user data: ${response['message']}");
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Anda belum memposting pekerjaan ')));
     }
   }
 
   Future<void> _fetchPostPekerjaan() async {
     setState(() {
-      isLoading = true; // Mulai loading
+      isLoading = true;
     });
 
     await initUser();
     if (user == null || user.isEmpty) {
-      print("User data belum tersedia");
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Anda tidak login di aplikasi ')));
+      Navigator.pushNamed(context, '/login');
     }
     try {
       final data =
@@ -50,13 +59,16 @@ class _PosthistoryState extends State<Posthistory> {
       setState(() {
         resultsJob = data;
       });
-
-      _sortResults(); // Panggil fungsi sort setelah mendapatkan data
+      _sortResults();
     } catch (e) {
-      print("Error fetching job postings: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Anda Belum memposting pekerjaann ')));
+      setState(() {
+        isLoading = false;
+      });
     } finally {
       setState(() {
-        isLoading = false; // Akhiri loading setelah data diambil
+        isLoading = false;
       });
     }
   }
@@ -182,50 +194,63 @@ class _PosthistoryState extends State<Posthistory> {
                     child: isLoading
                         ? Center(
                             child: CircularProgressIndicator(
-                            color: thirdColor,
-                          ))
-                        : ListView.builder(
-                            itemCount: resultsJob.length,
-                            itemBuilder: (context, index) {
-                              final job = resultsJob[index];
-                              final date = DateTime.parse(job['createdAt']);
-                              final formattedDate =
-                                  DateFormat('dd-MM-yyyy').format(date);
-                              return Container(
-                                margin: EdgeInsets.symmetric(vertical: 5),
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey),
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Colors.white,
-                                ),
-                                child: InkWell(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            DetailPekerjaanHRD(
-                                                jobId:
-                                                    job['id_post_pekerjaan']),
-                                      ),
-                                    );
-                                  },
-                                  child: ListTile(
-                                    title: Text(job['posisi']),
-                                    subtitle: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text("Lokasi: ${job['lokasi']}"),
-                                        Text("Status: ${job['status']}"),
-                                        Text("Tanggal:$formattedDate"),
-                                      ],
-                                    ),
+                              color: thirdColor,
+                            ),
+                          )
+                        : resultsJob.isEmpty
+                            ? Center(
+                                child: Text(
+                                  "Anda belum memposting pekerjaan",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey,
                                   ),
+                                  textAlign: TextAlign.center,
                                 ),
-                              );
-                            },
-                          ),
+                              )
+                            : ListView.builder(
+                                itemCount: resultsJob.length,
+                                itemBuilder: (context, index) {
+                                  final job = resultsJob[index];
+                                  final date = DateTime.parse(job['createdAt']);
+                                  final formattedDate =
+                                      DateFormat('dd-MM-yyyy').format(date);
+                                  return Container(
+                                    margin: EdgeInsets.symmetric(vertical: 5),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: Colors.white,
+                                    ),
+                                    child: InkWell(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                DetailPekerjaanHRD(
+                                                    jobId: job[
+                                                        'id_post_pekerjaan']),
+                                          ),
+                                        );
+                                      },
+                                      child: ListTile(
+                                        title: Text(job['posisi']),
+                                        subtitle: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text("Lokasi: ${job['lokasi']}"),
+                                            Text("Status: ${job['status']}"),
+                                            Text("Tanggal: $formattedDate"),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
                   ),
                 ],
               ),

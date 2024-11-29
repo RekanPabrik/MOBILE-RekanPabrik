@@ -12,6 +12,8 @@ import 'package:rekanpabrik/api/postingPekerjaanAPI.dart';
 import 'package:rekanpabrik/components/companyName_input.dart';
 import 'package:rekanpabrik/components/searchBarPelamarPekerjaan.dart';
 import 'package:rekanpabrik/models/postingPekerjaan.dart';
+import 'package:rekanpabrik/pages/HRD/changeProfilePagePerusahaan.dart';
+import 'package:rekanpabrik/pages/HRD/resetPassPerusahaan.dart';
 import 'package:rekanpabrik/utils/dataDummyPelamar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
