@@ -1,6 +1,5 @@
 part of '../page.dart';
 
-
 class Profilehrd extends StatefulWidget {
   const Profilehrd({super.key});
 
@@ -9,69 +8,119 @@ class Profilehrd extends StatefulWidget {
 }
 
 class _ProfilehrdState extends State<Profilehrd> {
-  // TextEditingControllers untuk input data pengguna
   final TextEditingController namaPerusahaanController =
-      TextEditingController(text: "PT.RekanKerja");
+      TextEditingController();
   final TextEditingController alamatPerusahaanController =
-      TextEditingController(text: "Jln.kita bersama No. 77");
-  final TextEditingController emailController =
-      TextEditingController(text: "rekanKerjaBersama@example.com");
-  final TextEditingController tentangPerusahaanController = TextEditingController(
-      text:
-       "PT Rekan Kerja adalah perusahaan teknologi yang bergerak di bidang pengembangan aplikasi dan solusi digital. Sejak didirikan pada tahun 2024, kami berkomitmen untuk memberikan layanan inovatif dan transformasi digital yang mendukung kebutuhan informasi pekerjaan di Indonesia."
-      );
-  final String fotoIMG =
-      "https://firebasestorage.googleapis.com/v0/b/proyek-tingkat.appspot.com/o/foto-profile-user%2F1727209252774_.png?alt=media&token=f572040b-895b-449b-bdc1-d4f52badc483";
-  final String defaultFotoIMG =
-      "https://firebasestorage.googleapis.com/v0/b/proyek-tingkat.appspot.com/o/foto-profile-user%2F1727209252774_.png?alt=media&token=f572040b-895b-449b-bdc1-d4f52badc483";
-  
+      TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController tentangPerusahaanController =
+      TextEditingController();
+  final String defaultFotoIMG = 'assets/img/defaultPict.png';
+  final ImagePicker _picker = ImagePicker();
+  final LoginAPI loginapi = LoginAPI();
+  final meAPI meapi = meAPI();
+  final PerusahaanAPI perusahaanapi = PerusahaanAPI();
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  File? _imageFile;
+  var user;
 
-  
-  String cvStatus = '';
-
-  String existingCV = "";
-  Uri? _cvURL;
-
-  String? selectedCV;
-
-File? _imageFile; // Variabel untuk menyimpan file gambar yang dipilih
-  final ImagePicker _picker = ImagePicker(); // Inisialisasi ImagePicker
+  bool isLoading = true; // Tambahkan variabel untuk loading state
 
   @override
   void initState() {
     super.initState();
+    initUser();
+    _initializeNotifications();
+    _requestNotificationPermission();
   }
 
-   // Fungsi untuk memilih gambar dari galeri
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+  Future<void> initUser() async {
+    setState(() {
+      isLoading = true; // Mulai loading
+    });
 
-    if (pickedFile != null) {
+    var response = await meapi.getUserProfile();
+
+    if (response['status'] == true && response['data'] != null) {
       setState(() {
-        _imageFile = File(pickedFile.path); // Simpan gambar yang dipilih
+        user = response['data'];
+        namaPerusahaanController.text =
+            user[0][0]['nama_perusahaan'].toString();
+        alamatPerusahaanController.text = user[0][0]['alamat'].toString();
+        emailController.text = user[0][0]['email'].toString();
+        tentangPerusahaanController.text = user[0][0]['about_me'].toString();
+        isLoading = false; // Selesai loading
       });
-    }
-  }
-
-  // Fungsi untuk mengunduh CV
-  Future<void> _launchCV() async {
-    if (_cvURL != null) {
-      await launchUrl(_cvURL!, mode: LaunchMode.externalApplication);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Mengunduh CV...')),
-      );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('CV TIDAK ADA...')),
-      );
+      setState(() {
+        isLoading = false; // Selesai loading meski gagal
+      });
+      print("Failed to retrieve user data: ${response['message']}");
     }
   }
 
-  // Fungsi untuk menyimpan perubahan profil
-  void saveProfile() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Profil berhasil diperbarui!')),
+  void _requestNotificationPermission() async {
+    final bool? granted = await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.requestNotificationsPermission();
+
+    if (granted != null && !granted) {
+      print("Izin notifikasi ditolak oleh pengguna");
+    }
+  }
+
+  void _initializeNotifications() async {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    const InitializationSettings initializationSettings =
+        InitializationSettings(
+      android: initializationSettingsAndroid,
     );
+
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+  void showProfileUpdatedNotification() async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      'profile_channel',
+      'Profile Update Notifications',
+      channelDescription: 'Notifications for profile updates',
+      importance: Importance.high,
+      priority: Priority.high,
+      ticker: 'ticker',
+    );
+
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+    );
+
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      'Profile Updated',
+      'Your profile has been updated successfully!',
+      platformChannelSpecifics,
+    );
+  }
+
+  Future<void> _updateProfileData() async {
+    final success = await perusahaanapi.updateProfileData(
+        idperusahaan: user[0][0]['id_perusahaan'],
+        email: emailController.text,
+        namaPerusahaan: namaPerusahaanController.text,
+        tentangPerusahaan: tentangPerusahaanController.text,
+        alamatPerusahaan: alamatPerusahaanController.text);
+
+    if (success) {
+      showProfileUpdatedNotification();
+      Navigator.pushNamed(context, '/pageHRD');
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Gagal memperbarui foto ')));
+    }
   }
 
   @override
@@ -80,107 +129,134 @@ File? _imageFile; // Variabel untuk menyimpan file gambar yang dipilih
       backgroundColor: primaryColor,
       body: SafeArea(
         bottom: true,
-        child: ListView(
-          padding: EdgeInsets.symmetric(horizontal: 10),
-          children: [
-      const SizedBox(height: 30),
-            // Foto profil
-            CircleAvatar(
-              radius: 80,
-              backgroundImage: _imageFile == null
-                  ? NetworkImage(defaultFotoIMG) // Jika belum ada file gambar yang dipilih, gunakan URL default
-                  : FileImage(_imageFile!) as ImageProvider, // Jika sudah ada, gunakan gambar yang dipilih
-            ),
-            const SizedBox(height: 20),
-            // Button lingkaran untuk mengganti foto profil
-            InkWell(
-              onTap: _pickImage, // Fungsi untuk memilih foto dari galeri
-              child: CircleAvatar(
-                radius: 20,
-                backgroundColor: Colors.grey,
-                child: const Icon(
-                  Icons.camera_alt,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
+        child: isLoading
+            ? const Center(
+                child:
+                    CircularProgressIndicator()) // Tampilkan loading jika sedang memuat data
+            : ListView(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                children: [
+                  const SizedBox(height: 30),
+                  // Foto profil
+                  CircleAvatar(
+                    radius: 80,
+                    backgroundImage: _imageFile == null
+                        ? (user?[0][0]['profile_pict'] != null
+                            ? NetworkImage(user[0][0]['profile_pict'])
+                                as ImageProvider
+                            : AssetImage(defaultFotoIMG) as ImageProvider)
+                        : FileImage(_imageFile!),
+                  ),
+                  const SizedBox(height: 20),
 
-            // Input Nama Perusahaan
-            TextField(
-              controller: namaPerusahaanController,
-              decoration: const InputDecoration(
-                labelText: "Nama Perusahaan",
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const Changeprofilepageperusahaan(),
+                        ),
+                      );
+                    },
+                    child: CircleAvatar(
+                      radius: 20,
+                      backgroundColor: Colors.grey,
+                      child: const Icon(
+                        Icons.camera_alt,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
 
-            // Input Nama Belakang
-            TextField(
-              controller: alamatPerusahaanController,
-              decoration: const InputDecoration(
-                labelText: "Alamat Perusahaan",
-                border:OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
+                  // Input Nama Perusahaan
+                  TextField(
+                    controller: namaPerusahaanController,
+                    decoration: const InputDecoration(
+                      labelText: "Nama Perusahaan",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
 
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(
-                labelText: "Email",
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            // Input Email
-            const SizedBox(height: 16),
+                  // Input Nama Belakang
+                  TextField(
+                    controller: alamatPerusahaanController,
+                    decoration: const InputDecoration(
+                      labelText: "Alamat Perusahaan",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
 
-            // Input Visi Misi Perusahaan
-            TextField(
-              controller: tentangPerusahaanController,
-              decoration: const InputDecoration(
-                labelText: "Tentang Perusahaan",
-                border: OutlineInputBorder(),
-              ),
-              maxLines: 5,
-            ),
-            const SizedBox(height: 20),
+                  TextField(
+                    controller: emailController,
+                    decoration: const InputDecoration(
+                      labelText: "Email",
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                  // Input Email
+                  const SizedBox(height: 16),
 
-            const SizedBox(height: 16),
+                  // Input Visi Misi Perusahaan
+                  TextField(
+                    controller: tentangPerusahaanController,
+                    decoration: const InputDecoration(
+                      labelText: "Tentang Perusahaan",
+                      border: OutlineInputBorder(),
+                    ),
+                    maxLines: 5,
+                  ),
+                  const SizedBox(height: 20),
 
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: dangerColor),
-                onPressed: () {
-                  Navigator.pushNamed(context, '/reserPass');
-                },
-                child: Text(
-                  "Reset Password",
-                  style: TextStyle(
-                      color: primaryColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15),
-                ),
+                  const SizedBox(height: 16),
+
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: dangerColor),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const Resetpassperusahaan(),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            "Reset Password",
+                            style: TextStyle(
+                                color: primaryColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15),
+                          ),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: succesColor),
+                          onPressed: () {
+                            _updateProfileData();
+                          },
+                          child: Text(
+                            "Simpan Perubahan",
+                            style: TextStyle(
+                                color: primaryColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15),
+                          ),
+                        ),
+                      ]),
+                  SizedBox(
+                    height: 200,
+                  )
+                ],
               ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: succesColor),
-                onPressed: saveProfile,
-                child: Text(
-                  "Simpan Perubahan",
-                  style: TextStyle(
-                      color: primaryColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15),
-                ),
-              ),
-            ]),
-            SizedBox(
-              height: 200,
-            )
-          ],
-        ),
       ),
     );
   }
