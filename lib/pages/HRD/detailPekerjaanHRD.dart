@@ -42,11 +42,21 @@ class _DetailPekerjaanHRDState extends State<DetailPekerjaanHRD> {
     }
   }
 
-  void ubahStatus(int idPostPekerjaan) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Status pekerjaan diubah')),
-    );
-    Navigator.pushNamed(context, '/pageHRD');
+  Future<void> ubahStatus(int idPostPekerjaan) async {
+    bool status =
+        await postingpekerjaanapi.ubahStatusPekerjaann(idPostPekerjaan);
+
+    if (status) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Status pekerjaan diubah')),
+      );
+
+      Navigator.pushNamed(context, '/pageHRD');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error saats mengubah status pekerjaan')),
+      );
+    }
   }
 
   @override

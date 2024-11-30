@@ -1,176 +1,189 @@
-part of '../page.dart';
+import 'package:flutter/material.dart';
+import 'package:rekanpabrik/api/postingPekerjaanAPI.dart';
+import 'package:rekanpabrik/shared/shared.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class Detailpelamar extends StatelessWidget {
+class Detailpelamar extends StatefulWidget {
   final int idPelamar;
+
   const Detailpelamar({super.key, required this.idPelamar});
+
+  @override
+  _DetailpelamarState createState() => _DetailpelamarState();
+}
+
+class _DetailpelamarState extends State<Detailpelamar> {
+  Map<String, dynamic>? pelamar;
+  bool isLoading = true;
+  final String defaultFotoIMG = 'assets/img/defaultPict.png';
+
+  @override
+  void initState() {
+    super.initState();
+    fetchDetailPelamar(widget.idPelamar);
+  }
+
+  Future<void> fetchDetailPelamar(int idPelamar) async {
+    try {
+      final data = await Postingpekerjaanapi().getDetailPelamar(idPelamar);
+      setState(() {
+        pelamar = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Terjadi kesalahan: $e')),
+      );
+    }
+  }
 
   Color statusColors(String status) {
     if (status == "diproses") {
       return Colors.grey;
     } else if (status == "ditolak") {
-      return dangerColor;
+      return Colors.red;
     } else if (status == "diterima") {
-      return succesColor;
+      return Colors.green;
     } else {
-      return primaryColor;
+      return Colors.blue;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    Map<String, dynamic> pelamar = dummyDataPelamarPekerjaaan.firstWhere(
-      (item) => item['idPelamar'] == idPelamar,
-      orElse: () => {
-        'id': 0,
-        'firstName': null,
-        'lastName': null,
-        'CV': null,
-        'IMG': null,
-        'posisiDilamar': null,
-        'statusLamaran': null,
-      },
-    );
-
     return Scaffold(
-      backgroundColor: primaryColor,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Detail Pelamar'),
-        backgroundColor: primaryColor,
       ),
-      body: pelamar['idPelamar'] != null
-          ? SafeArea(
-              child: ListView(
-                padding: const EdgeInsets.all(16.0),
-                children: [
-                  Center(
-                    child: CircleAvatar(
-                      radius: 50,
-                      backgroundImage: pelamar['IMG'] != null
-                          ? NetworkImage(pelamar['IMG'])
-                          : const AssetImage(
-                              'assets/images/default_avatar.png'),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Container(
-                    width: 100,
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: statusColors(pelamar['statusLamaran']),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      pelamar['statusLamaran'].toString(),
-                      style: const TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  // Input area untuk first name
-                  TextField(
-                    controller:
-                        TextEditingController(text: pelamar['firstName']),
-                    readOnly: true,
-                    decoration: const InputDecoration(
-                      labelText: 'First Name',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  // Input area untuk last name
-                  TextField(
-                    controller:
-                        TextEditingController(text: pelamar['lastName']),
-                    readOnly: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Last Name',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller:
-                        TextEditingController(text: pelamar['posisiDilamar']),
-                    readOnly: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Posisi yang di lamar',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Tombol untuk mendownload CV
-                  ElevatedButton(
-                    style:
-                        ElevatedButton.styleFrom(backgroundColor: thirdColor),
-                    onPressed: () => _launchCV(pelamar['CV'], context),
-                    child: const Text(
-                      'Download CV',
-                      style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
-                    ),
-                  ),
-
-                  const SizedBox(height: 50),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : pelamar != null
+              ? SafeArea(
+                  child: ListView(
+                    padding: const EdgeInsets.all(16.0),
                     children: [
-                      ElevatedButton(
-                        onPressed: () async {
-                          bool? confirm =
-                              await _showConfirmationDialogDiTolak(context);
-                          if (confirm ?? false) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Lamaran ditolak')),
-                            );
-                            // Tambahkan logika untuk update status di database atau API di sini
-                          }
-                          Navigator.pushNamed(context, '/pageHRD');
-                        },
-                        child: const Text('Tolak Pelamar'),
+                      Center(
+                        child: CircleAvatar(
+                            radius: 50,
+                            backgroundImage: pelamar!['foto_pelamar'] != null
+                                ? NetworkImage(pelamar!['foto_pelamar'])
+                                    as ImageProvider
+                                : AssetImage(defaultFotoIMG) as ImageProvider),
                       ),
-                      ElevatedButton(
-                        onPressed: () async {
-                          bool? confirm =
-                              await _showConfirmationDialogDiterima(context);
-                          if (confirm ?? false) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Lamaran diterima')),
-                            );
-                            // Tambahkan logika untuk update status di database atau API di sini
-                          }
-                          Navigator.pushNamed(context, '/pageHRD');
-                        },
-                        child: const Text('Terima Pelamar'),
+                      const SizedBox(height: 20),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: statusColors(
+                              pelamar!['status_lamaran'].toString()),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          pelamar!['status_lamaran'].toString(),
+                          style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
+                      const SizedBox(height: 20),
+                      TextField(
+                        controller:
+                            TextEditingController(text: pelamar!['nama_depan']),
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          labelText: 'First Name',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),
+                      TextField(
+                        controller: TextEditingController(
+                            text: pelamar!['nama_belakang']),
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          labelText: 'Last Name',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),
+                      TextField(
+                        controller: TextEditingController(
+                            text: pelamar!['posisi_dilamar']),
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          labelText: 'Posisi yang dilamar',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: thirdColor),
+                        onPressed: () => _launchCV(pelamar!['cv'], context),
+                        child: const Text(
+                          'Download CV',
+                          style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(height: 50),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () async {
+                              bool? confirm =
+                                  await _showConfirmationDialogDiTolak(context);
+                              if (confirm ?? false) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text('Lamaran ditolak')),
+                                );
+                                Navigator.pushNamed(context, '/pageHRD');
+                              }
+                            },
+                            child: const Text('Tolak Pelamar'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () async {
+                              bool? confirm =
+                                  await _showConfirmationDialogDiterima(
+                                      context);
+                              if (confirm ?? false) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text('Lamaran diterima')),
+                                );
+                                Navigator.pushNamed(context, '/pageHRD');
+                              }
+                            },
+                            child: const Text('Terima Pelamar'),
+                          ),
+                        ],
+                      )
                     ],
-                  )
-                ],
-              ),
-            )
-          : Center(child: const Text('Pelamar tidak ditemukan')),
+                  ),
+                )
+              : Center(child: const Text('Data pelamar tidak ditemukan')),
     );
   }
 
   Future<void> _launchCV(String? cvUrl, BuildContext context) async {
-    if (cvUrl != null) {
-      final Uri uri = Uri.parse(cvUrl); // Ubah menjadi Uri
+    if (cvUrl != null && cvUrl.isNotEmpty) {
+      final Uri uri = Uri.parse(cvUrl);
       if (await canLaunchUrl(uri)) {
-        // Ganti canLaunch dengan canLaunchUrl
-        await launchUrl(uri,
-            mode: LaunchMode
-                .externalApplication); // Ganti launch dengan launchUrl
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Mengunduh CV...')),
-        );
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('CV tidak tersedia')),
+          const SnackBar(content: Text('Tidak dapat membuka CV')),
         );
       }
     } else {
@@ -191,13 +204,13 @@ Future<bool?> _showConfirmationDialogDiterima(BuildContext context) {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop(false); // Kembali tanpa update
+              Navigator.of(context).pop(false);
             },
             child: const Text('Tidak'),
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.of(context).pop(true); // Konfirmasi update
+              Navigator.of(context).pop(true);
             },
             child: const Text('Ya'),
           ),
@@ -217,13 +230,13 @@ Future<bool?> _showConfirmationDialogDiTolak(BuildContext context) {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop(false); // Kembali tanpa update
+              Navigator.of(context).pop(false);
             },
             child: const Text('Tidak'),
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.of(context).pop(true); // Konfirmasi update
+              Navigator.of(context).pop(true);
             },
             child: const Text('Ya'),
           ),

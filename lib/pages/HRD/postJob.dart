@@ -15,12 +15,28 @@ class _PostjobState extends State<Postjob> {
       TextEditingController();
   final TextEditingController jobDetailsController = TextEditingController();
   final TextEditingController requirementsController = TextEditingController();
+  var user;
 
   @override
   void initState() {
     super.initState();
     _initializeNotifications();
     _requestNotificationPermission();
+    initUser();
+  }
+
+  Future<void> initUser() async {
+    var response = await meAPI().getUserProfile();
+
+    if (response['status'] == true && response['data'] != null) {
+      setState(() {
+        user = response['data'];
+      });
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Anda tidak login ')));
+      print("Failed to retrieve user data: ${response['message']}");
+    }
   }
 
   void _requestNotificationPermission() async {
@@ -30,7 +46,9 @@ class _PostjobState extends State<Postjob> {
         ?.requestNotificationsPermission();
 
     if (granted != null && !granted) {
-      print("Izin notifikasi ditolak oleh pengguna");
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Izin notifikasi ditolak oleh pengguna ')));
+      // print("Izin notifikasi ditolak oleh pengguna");
     }
   }
 
@@ -69,8 +87,23 @@ class _PostjobState extends State<Postjob> {
     );
   }
 
-  void postJob() {
-    showJobPostedNotification();
+  Future<void> postJob(int idPerusahaan, String posisi, String lokasi,
+      String jobDetails, String requirements) async {
+    try {
+      bool status = await Postingpekerjaanapi().postingPekerjaann(
+          idPerusahaan, posisi, lokasi, jobDetails, requirements);
+
+      if (status) {
+        showJobPostedNotification();
+        Navigator.pushNamed(context, '/pageHRD');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Gagal memposting pekerjaan ')));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Error memposting pekerjaan ')));
+    }
   }
 
   @override
@@ -172,7 +205,16 @@ class _PostjobState extends State<Postjob> {
               Align(
                 alignment: Alignment.center,
                 child: ElevatedButton(
-                  onPressed: postJob,
+                  onPressed: () {
+                    int idPerusahaan = user[0][0]['id_perusahaan'];
+                    String posisi = posisiController.text;
+                    String lokasi = lokasiPekerjaanController.text;
+                    String jobDetails = jobDetailsController.text;
+                    String requirements = requirementsController.text;
+
+                    postJob(
+                        idPerusahaan, posisi, lokasi, jobDetails, requirements);
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: succesColor,
                     padding: EdgeInsets.symmetric(

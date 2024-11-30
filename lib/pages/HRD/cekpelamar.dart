@@ -73,7 +73,7 @@ class _CekpelamarState extends State<Cekpelamar> {
               SizedBox(
                 height: 30,
               ),
-              searchBarPelamarPekerjaan(),
+              SearchBarPelamarPekerjaan(),
               SizedBox(
                 height: 100,
               ),
