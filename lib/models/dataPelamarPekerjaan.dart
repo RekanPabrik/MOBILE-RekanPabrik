@@ -1,18 +1,23 @@
 class pelamarPekerjaan {
+  String namaPerusahaan;
   int idPelamar;
   String firstName;
   String lastName;
-  String CV;
-  String IMG;
-  String posisisDilamar;
+  String email;
+  String? fotoProfil;
+  String? linkCv;
   String statusLamaran;
+  String posisiDilamar;
 
-  pelamarPekerjaan(
-      {required this.idPelamar,
-      required this.firstName,
-      required this.lastName,
-      required this.CV,
-      required this.IMG,
-      required this.posisisDilamar,
-      required this.statusLamaran});
+  pelamarPekerjaan({
+    required this.namaPerusahaan,
+    required this.idPelamar,
+    required this.firstName,
+    required this.lastName,
+    required this.email,
+    this.fotoProfil,
+    this.linkCv,
+    required this.statusLamaran,
+    required this.posisiDilamar,
+  });
 }

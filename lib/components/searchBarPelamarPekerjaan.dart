@@ -1,61 +1,143 @@
 import 'package:flutter/material.dart';
+import 'package:rekanpabrik/api/meAPI.dart';
+import 'package:rekanpabrik/api/postingPekerjaanAPI.dart';
 import 'package:rekanpabrik/models/dataPelamarPekerjaan.dart';
-import 'package:rekanpabrik/models/postingPekerjaan.dart';
+import 'package:rekanpabrik/pages/HRD/detailPelamar.dart';
 import 'package:rekanpabrik/pages/page.dart';
 import 'package:rekanpabrik/shared/shared.dart';
-import 'package:rekanpabrik/utils/dataDummyPelamar.dart';
-import 'package:rekanpabrik/utils/dummyPostinganPekerjaan.dart';
 
-class searchBarPelamarPekerjaan extends StatefulWidget {
-  const searchBarPelamarPekerjaan({super.key});
+class SearchBarPelamarPekerjaan extends StatefulWidget {
+  const SearchBarPelamarPekerjaan({Key? key}) : super(key: key);
 
   @override
-  _searchBarPelamarPekerjaan createState() => _searchBarPelamarPekerjaan();
+  _SearchBarPelamarPekerjaanState createState() =>
+      _SearchBarPelamarPekerjaanState();
 }
 
-class _searchBarPelamarPekerjaan extends State<searchBarPelamarPekerjaan> {
+class _SearchBarPelamarPekerjaanState extends State<SearchBarPelamarPekerjaan> {
   String query = '';
-  List<pelamarPekerjaan> results = []; // For storing search results
+  List<pelamarPekerjaan> dataDitampilkan = [];
+  List<Map<String, dynamic>> resultsPelamar = [];
+  dynamic user;
+  bool _isLoading = true;
+  String _errorMessage = '';
 
   @override
   void initState() {
     super.initState();
-    // Initialize results with the first 5 dummy jobs
-    results = dummyDataPelamarPekerjaaan.take(5).map((user) {
-      return pelamarPekerjaan(
-          idPelamar: user['idPelamar'],
-          firstName: user['firstName'],
-          lastName: user['lastName'],
-          CV: user['CV'],
-          IMG: user['IMG'],
-          posisisDilamar: user['posisiDilamar'],
-          statusLamaran: user['statusLamaran']);
-    }).toList();
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    try {
+      // Fetch user profile
+      var response = await meAPI().getUserProfile();
+
+      if (response['status'] == true && response['data'] != null) {
+        setState(() {
+          user = response['data'];
+        });
+
+        // Fetch pelamar data
+        await _fetchPelamar();
+      } else {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'Anda Tidak Login';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Terjadi kesalahan: ${e.toString()}';
+      });
+    }
+  }
+
+  Future<void> _fetchPelamar() async {
+    try {
+      int? companyId;
+      if (user is List && user.isNotEmpty && user[0][0].isNotEmpty) {
+        companyId = user[0][0]['id_perusahaan'];
+      }
+
+      if (companyId == null) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'ID Perusahaan tidak ditemukan';
+        });
+        return;
+      }
+
+      var data = await Postingpekerjaanapi().getPelamarByCompanyId(companyId);
+
+      setState(() {
+        _isLoading = false;
+        if (data != null && data.isNotEmpty) {
+          resultsPelamar = data;
+          dataDitampilkan = resultsPelamar.take(5).map((user) {
+            return pelamarPekerjaan(
+              namaPerusahaan: user['nama_perusahaan'].toString(),
+              idPelamar: user['id_pelamar'],
+              firstName: user['first_name'].toString(),
+              lastName: user['last_name'].toString(),
+              email: user['email'].toString(),
+              linkCv: user['link_cv'].toString(),
+              fotoProfil: user['foto_profil'].toString(),
+              statusLamaran: user['status_lamaran'].toString(),
+              posisiDilamar: user['posisi_dilamar'].toString(),
+            );
+          }).toList();
+        } else {
+          _errorMessage = 'Anda belum mendapatkan pelamar';
+        }
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage =
+            'Terjadi kesalahan saat mengambil data: ${e.toString()}';
+      });
+    }
   }
 
   Color statusColors(String status) {
-    if (status == "diproses") {
-      return Colors.grey;
-    } else if (status == "ditolak") {
-      return dangerColor;
-    } else if (status == "diterima") {
-      return succesColor;
-    } else {
-      return primaryColor;
+    switch (status) {
+      case "diproses":
+        return Colors.grey;
+      case "ditolak":
+        return dangerColor;
+      case "diterima":
+        return succesColor;
+      default:
+        return primaryColor;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Column(
-        children: [
-          TextField(
+    if (_isLoading) {
+      return Center(child: CircularProgressIndicator());
+    }
+
+    if (_errorMessage.isNotEmpty) {
+      return Center(
+        child: Text(
+          _errorMessage,
+          style: TextStyle(color: Colors.red, fontSize: 16),
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: TextField(
             onChanged: (value) {
               setState(() {
                 query = value;
-                results = cariDataPelamar(query); // Update search results
+                dataDitampilkan = cariDataPelamar(value);
               });
             },
             decoration: InputDecoration(
@@ -72,134 +154,97 @@ class _searchBarPelamarPekerjaan extends State<searchBarPelamarPekerjaan> {
               ),
             ),
           ),
-          SizedBox(height: 10), // Space between search bar and results
-
-          // Cek apakah hasil pencarian kosong
-          results.isEmpty
-              ? Container(
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: 30,
-                      ),
-                      Center(
-                          child: Text(
-                        'Pelamar Not Found',
-                        style: TextStyle(
-                          fontSize: 25,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      )) // Tampilkan pesan jika kosong
-                    ],
-                  ),
-                )
-              : Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
-                  height: 600,
-                  child: ListView.builder(
-                    itemCount: results.length,
-                    itemBuilder: (context, index) {
-                      return Container(
-                        margin: EdgeInsets.symmetric(
-                            vertical: 5), // Space between items
-                        decoration: BoxDecoration(
-                          border:
-                              Border.all(color: Colors.grey), // Border color
-                          borderRadius:
-                              BorderRadius.circular(10), // Rounded corners
-                          color: Colors.white, // Background color
-                        ),
-                        child: InkWell(
-                          onTap: () {
-                            // Navigate to the detail page with the job ID
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Detailpelamar(
-                                  idPelamar: results[index].idPelamar,
-                                ),
-                              ),
-                            );
-                          },
-                          child: ListTile(
-                            title: Text(
-                              "${results[index].firstName} ${results[index].lastName}",
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(results[index]
-                                    .posisisDilamar), // Posisi yang dilamar
-                                const SizedBox(
-                                    height:
-                                        5), // Space between position and status
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical:
-                                          4), // Padding for the status container
-                                  decoration: BoxDecoration(
-                                    color: statusColors(
-                                        results[index].statusLamaran),
-                                    borderRadius: BorderRadius.circular(
-                                        10), // Rounded corners
-                                  ),
-                                  child: Text(
-                                    results[index]
-                                        .statusLamaran, // Status lamaran
-                                    style: const TextStyle(
-                                      color: Colors.white, // Text color
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+        ),
+        resultsPelamar.isEmpty
+            ? Center(
+                child: Text(
+                  'Pelamar Not Found',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-        ],
-      ),
+              )
+            : SingleChildScrollView(
+                child: Column(
+                  children: dataDitampilkan.map((pelamar) {
+                    return Container(
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 5, horizontal: 16),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.white,
+                      ),
+                      child: ListTile(
+                        title: Text('${pelamar.firstName} ${pelamar.lastName}'),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(pelamar.posisiDilamar),
+                            SizedBox(height: 5),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: statusColors(pelamar.statusLamaran),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                pelamar.statusLamaran,
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        ),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Detailpelamar(
+                                    idPelamar: pelamar.idPelamar)),
+                          );
+                        },
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+      ],
     );
   }
 
   List<pelamarPekerjaan> cariDataPelamar(String query) {
     if (query.isEmpty) {
-      // Return first 5 jobs if query is empty
-      return dummyDataPelamarPekerjaaan.take(5).map((user) {
+      return resultsPelamar.take(5).map((user) {
         return pelamarPekerjaan(
-            idPelamar: user['idPelamar'],
-            firstName: user['firstName'],
-            lastName: user['lastName'],
-            CV: user['CV'],
-            IMG: user['IMG'],
-            posisisDilamar: user['posisiDilamar'],
-            statusLamaran: user['statusLamaran'].toString());
+          namaPerusahaan: user['nama_perusahaan'].toString(),
+          idPelamar: user['id_pelamar'],
+          firstName: user['first_name'].toString(),
+          lastName: user['last_name'].toString(),
+          email: user['email'].toString(),
+          linkCv: user['link_cv'].toString(),
+          fotoProfil: user['foto_profil'].toString(),
+          statusLamaran: user['status_lamaran'].toString(),
+          posisiDilamar: user['posisi_dilamar'].toString(),
+        );
       }).toList();
     }
 
-    // List for found jobs
-    List<pelamarPekerjaan> foundPelamar = [];
-    for (var user in dummyDataPelamarPekerjaaan) {
-      // Memeriksa apakah user['posisi'] tidak null
-      var posisi = user['posisi'];
-      if (posisi != null &&
-          posisi.toLowerCase().contains(query.toLowerCase())) {
-        foundPelamar.add(pelamarPekerjaan(
-          idPelamar: user['idPelamar'],
-          firstName: user['firstName'],
-          lastName: user['lastName'],
-          CV: user['CV'],
-          IMG: user['IMG'],
-          posisisDilamar: user['posisiDilamar'],
-          statusLamaran: user['statusLamaran'],
-        ));
-      }
-    }
-    return foundPelamar; // Kembalikan daftar pelamar yang cocok
+    return resultsPelamar.where((user) {
+      var posisi = user['posisi_dilamar'] ?? '';
+      return posisi.toLowerCase().contains(query.toLowerCase());
+    }).map((user) {
+      return pelamarPekerjaan(
+        namaPerusahaan: user['nama_perusahaan'].toString(),
+        idPelamar: user['id_pelamar'],
+        firstName: user['first_name'].toString(),
+        lastName: user['last_name'].toString(),
+        email: user['email'].toString(),
+        linkCv: user['link_cv'].toString(),
+        fotoProfil: user['foto_profil'].toString(),
+        statusLamaran: user['status_lamaran'].toString(),
+        posisiDilamar: user['posisi_dilamar'].toString(),
+      );
+    }).toList();
   }
 }
