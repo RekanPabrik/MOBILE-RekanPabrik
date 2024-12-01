@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rekanpabrik/api/meAPI.dart';
-import 'package:rekanpabrik/api/postingPekerjaanAPI.dart';
+import 'package:rekanpabrik/api/posting_pekerjaan_API.dart';
 import 'package:rekanpabrik/models/dataPelamarPekerjaan.dart';
 import 'package:rekanpabrik/pages/HRD/detailPelamar.dart';
 import 'package:rekanpabrik/pages/page.dart';
@@ -30,23 +30,24 @@ class _SearchBarPelamarPekerjaanState extends State<SearchBarPelamarPekerjaan> {
 
   Future<void> _fetchData() async {
     try {
-      // Fetch user profile
       var response = await meAPI().getUserProfile();
 
       if (response['status'] == true && response['data'] != null) {
+        if (!mounted) return;
         setState(() {
           user = response['data'];
         });
 
-        // Fetch pelamar data
         await _fetchPelamar();
       } else {
+        if (!mounted) return;
         setState(() {
           _isLoading = false;
           _errorMessage = 'Anda Tidak Login';
         });
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
         _errorMessage = 'Terjadi kesalahan: ${e.toString()}';
@@ -117,7 +118,10 @@ class _SearchBarPelamarPekerjaanState extends State<SearchBarPelamarPekerjaan> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return Center(child: CircularProgressIndicator());
+      return Center(
+          child: CircularProgressIndicator(
+        color: thirdColor,
+      ));
     }
 
     if (_errorMessage.isNotEmpty) {

@@ -146,7 +146,7 @@ class _loginPageState extends State<login_page> {
               child: Container(
                 width: 250,
                 child: Text(
-                  "Wellcome Back",
+                  "Welcome Back Users",
                   style: TextStyle(
                     color: thirdColor,
                     fontFamily: 'poppins',
@@ -206,7 +206,7 @@ class _loginPageState extends State<login_page> {
             SizedBox(height: 20),
             Align(
               alignment: Alignment.center,
-              child: isLoading // Tampilkan spinner jika isLoading true
+              child: isLoading
                   ? CircularProgressIndicator(
                       color: thirdColor,
                     )
@@ -237,37 +237,6 @@ class _loginPageState extends State<login_page> {
                     ),
             ),
             SizedBox(height: 50),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                children: [
-                  mydivider(),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    child: Text("Or continue with"),
-                  ),
-                  mydivider(),
-                ],
-              ),
-            ),
-            SizedBox(height: 50),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                      border: Border.all(color: thirdColor, width: 3),
-                      borderRadius: BorderRadius.circular(20),
-                      color: Colors.white),
-                  child: Image.asset(
-                    'assets/img/google.png',
-                    height: 30,
-                  ),
-                )
-              ],
-            ),
-            SizedBox(height: 100),
             RichText(
               textAlign: TextAlign.center,
               text: TextSpan(

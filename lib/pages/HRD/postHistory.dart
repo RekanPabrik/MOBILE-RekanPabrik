@@ -14,7 +14,7 @@ class _PosthistoryState extends State<Posthistory> {
 
   List<Map<String, dynamic>> resultsJob = [];
   String selectedFilter = 'Tanggal Terbaru';
-  bool isLoading = true; // Variabel untuk melacak status loading
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -26,10 +26,12 @@ class _PosthistoryState extends State<Posthistory> {
     var response = await meapi.getUserProfile();
 
     if (response['status'] == true && response['data'] != null) {
+      if (!mounted) return;
       setState(() {
         user = response['data'];
       });
     } else {
+      if (!mounted) return;
       setState(() {
         isLoading = false;
       });
@@ -39,12 +41,14 @@ class _PosthistoryState extends State<Posthistory> {
   }
 
   Future<void> _fetchPostPekerjaan() async {
+    if (!mounted) return;
     setState(() {
       isLoading = true;
     });
 
     await initUser();
     if (user == null || user.isEmpty) {
+      if (!mounted) return;
       setState(() {
         isLoading = false;
       });
@@ -53,6 +57,7 @@ class _PosthistoryState extends State<Posthistory> {
       Navigator.pushNamed(context, '/login');
     }
     try {
+      if (!mounted) return;
       final data =
           await postpekerjaanapi.getPostPekerjaan(user[0][0]['id_perusahaan']);
 
@@ -61,12 +66,14 @@ class _PosthistoryState extends State<Posthistory> {
       });
       _sortResults();
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Anda Belum memposting pekerjaann ')));
       setState(() {
         isLoading = false;
       });
     } finally {
+      if (!mounted) return;
       setState(() {
         isLoading = false;
       });

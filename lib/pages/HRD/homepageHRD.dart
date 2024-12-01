@@ -8,8 +8,59 @@ class Homepagehrd extends StatefulWidget {
 }
 
 class _HomepagehrdState extends State<Homepagehrd> {
+  var user;
+  final String defaultFotoIMG = 'assets/img/defaultPict.png';
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    initUser();
+  }
+
+  Future<void> initUser() async {
+    var response = await meAPI().getUserProfile();
+    try {
+      if (response['status'] == true && response['data'] != null) {
+        setState(() {
+          user = response['data'];
+          isLoading = false;
+        });
+      } else {
+        if (!mounted) return;
+        isLoading = false;
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Anda belum login ')));
+        Navigator.pushNamed(context, '/login');
+        print("Failed to retrieve user data: ${response['message']}");
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Anda belum login ')));
+      Navigator.pushNamed(context, '/login');
+      print("Failed to retrieve user data: ${response['message']}");
+    } finally {
+      if (!mounted) return;
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return Scaffold(
+        backgroundColor: primaryColor,
+        body: Center(
+          child: CircularProgressIndicator(
+            color: thirdColor,
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: primaryColor,
       body: SafeArea(
@@ -74,8 +125,11 @@ class _HomepagehrdState extends State<Homepagehrd> {
                     // Avatar berada di kanan
                     CircleAvatar(
                       radius: 40,
-                      backgroundColor: Colors.green,
-                      backgroundImage: AssetImage('assets/img/dapa.png'),
+                      backgroundColor: Colors.grey,
+                      backgroundImage: (user?[0][0]['profile_pict'] != null
+                          ? NetworkImage(user[0][0]['profile_pict'])
+                              as ImageProvider
+                          : AssetImage(defaultFotoIMG) as ImageProvider),
                     ),
                   ],
                 ),

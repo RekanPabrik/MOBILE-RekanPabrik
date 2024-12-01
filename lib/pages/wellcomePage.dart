@@ -21,7 +21,7 @@ class WellcomePage extends StatelessWidget {
               height: 50,
             ),
             Text(
-              "Wellcome",
+              "Welcome",
               style: TextStyle(
                   color: thirdColor,
                   fontFamily:
