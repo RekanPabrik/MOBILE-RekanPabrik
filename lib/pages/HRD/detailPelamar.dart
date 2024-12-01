@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:rekanpabrik/api/postingPekerjaanAPI.dart';
+import 'package:rekanpabrik/api/posting_pekerjaan_API.dart';
 import 'package:rekanpabrik/shared/shared.dart';
 import 'package:url_launcher/url_launcher.dart';
 

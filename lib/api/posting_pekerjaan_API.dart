@@ -165,7 +165,6 @@ class Postingpekerjaanapi {
         if (data['data'] != null && data['data'].isNotEmpty) {
           var pelamar = data['data'][0];
 
-          // Cek dan tampilkan data dari respons API
           print('Data Pelamar: $pelamar');
 
           return pelamar;

@@ -25,7 +25,7 @@ class _ProfilehrdState extends State<Profilehrd> {
   File? _imageFile;
   var user;
 
-  bool isLoading = true; // Tambahkan variabel untuk loading state
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -36,13 +36,15 @@ class _ProfilehrdState extends State<Profilehrd> {
   }
 
   Future<void> initUser() async {
+    if (!mounted) return;
     setState(() {
-      isLoading = true; // Mulai loading
+      isLoading = true;
     });
 
     var response = await meapi.getUserProfile();
 
     if (response['status'] == true && response['data'] != null) {
+      if (!mounted) return;
       setState(() {
         user = response['data'];
         namaPerusahaanController.text =
@@ -50,11 +52,12 @@ class _ProfilehrdState extends State<Profilehrd> {
         alamatPerusahaanController.text = user[0][0]['alamat'].toString();
         emailController.text = user[0][0]['email'].toString();
         tentangPerusahaanController.text = user[0][0]['about_me'].toString();
-        isLoading = false; // Selesai loading
+        isLoading = false;
       });
     } else {
+      if (!mounted) return;
       setState(() {
-        isLoading = false; // Selesai loading meski gagal
+        isLoading = false;
       });
       print("Failed to retrieve user data: ${response['message']}");
     }
@@ -123,6 +126,24 @@ class _ProfilehrdState extends State<Profilehrd> {
     }
   }
 
+  Future<void> logout() async {
+    bool result = await LoginAPI().logout();
+    if (result) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => login_page()),
+        (route) => false, // Menghapus semua halaman sebelumnya di stack
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Anda sudah log out")),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Logout failed")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -131,13 +152,13 @@ class _ProfilehrdState extends State<Profilehrd> {
         bottom: true,
         child: isLoading
             ? const Center(
-                child:
-                    CircularProgressIndicator()) // Tampilkan loading jika sedang memuat data
+                child: CircularProgressIndicator(
+                color: Color.fromARGB(255, 168, 97, 8),
+              ))
             : ListView(
                 padding: EdgeInsets.symmetric(horizontal: 10),
                 children: [
                   const SizedBox(height: 30),
-                  // Foto profil
                   CircleAvatar(
                     radius: 80,
                     backgroundImage: _imageFile == null
@@ -148,7 +169,6 @@ class _ProfilehrdState extends State<Profilehrd> {
                         : FileImage(_imageFile!),
                   ),
                   const SizedBox(height: 20),
-
                   InkWell(
                     onTap: () {
                       Navigator.push(
@@ -169,8 +189,6 @@ class _ProfilehrdState extends State<Profilehrd> {
                     ),
                   ),
                   const SizedBox(height: 20),
-
-                  // Input Nama Perusahaan
                   TextField(
                     controller: namaPerusahaanController,
                     decoration: const InputDecoration(
@@ -179,8 +197,6 @@ class _ProfilehrdState extends State<Profilehrd> {
                     ),
                   ),
                   const SizedBox(height: 16),
-
-                  // Input Nama Belakang
                   TextField(
                     controller: alamatPerusahaanController,
                     decoration: const InputDecoration(
@@ -189,7 +205,6 @@ class _ProfilehrdState extends State<Profilehrd> {
                     ),
                   ),
                   const SizedBox(height: 16),
-
                   TextField(
                     controller: emailController,
                     decoration: const InputDecoration(
@@ -198,10 +213,7 @@ class _ProfilehrdState extends State<Profilehrd> {
                     ),
                     keyboardType: TextInputType.emailAddress,
                   ),
-                  // Input Email
                   const SizedBox(height: 16),
-
-                  // Input Visi Misi Perusahaan
                   TextField(
                     controller: tentangPerusahaanController,
                     decoration: const InputDecoration(
@@ -210,16 +222,13 @@ class _ProfilehrdState extends State<Profilehrd> {
                     ),
                     maxLines: 5,
                   ),
-                  const SizedBox(height: 20),
-
-                  const SizedBox(height: 16),
-
+                  const SizedBox(height: 30),
                   Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                              backgroundColor: dangerColor),
+                              backgroundColor: thirdColor),
                           onPressed: () {
                             Navigator.push(
                               context,
@@ -252,6 +261,23 @@ class _ProfilehrdState extends State<Profilehrd> {
                           ),
                         ),
                       ]),
+                  SizedBox(
+                    height: 50,
+                  ),
+                  ElevatedButton(
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: dangerColor),
+                    onPressed: () {
+                      logout();
+                    },
+                    child: Text(
+                      "log out",
+                      style: TextStyle(
+                          color: primaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15),
+                    ),
+                  ),
                   SizedBox(
                     height: 200,
                   )

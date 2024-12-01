@@ -43,6 +43,17 @@ class LoginAPI {
     }
   }
 
+  Future<bool> logout() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('auth_token');
+      return true;
+    } catch (e) {
+      print("Error during logout: $e");
+      return false;
+    }
+  }
+
   // Fungsi untuk menyimpan token ke SharedPreferences
   Future<void> _saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();

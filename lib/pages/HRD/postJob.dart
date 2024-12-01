@@ -29,10 +29,12 @@ class _PostjobState extends State<Postjob> {
     var response = await meAPI().getUserProfile();
 
     if (response['status'] == true && response['data'] != null) {
+      if (!mounted) return;
       setState(() {
         user = response['data'];
       });
     } else {
+      if (!mounted) return;
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('Anda tidak login ')));
       print("Failed to retrieve user data: ${response['message']}");
