@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:rekanpabrik/api/meAPI.dart';
+import 'package:rekanpabrik/api/posting_pekerjaan_API.dart';
 import 'package:rekanpabrik/models/postingPekerjaan.dart';
 import 'package:rekanpabrik/pages/page.dart';
 import 'package:rekanpabrik/shared/shared.dart';
@@ -14,28 +16,74 @@ class searchBarCariPekerjaan extends StatefulWidget {
 
 class _searchBarCariPekerjaan extends State<searchBarCariPekerjaan> {
   String query = '';
-  List<PostingPekerjaan> results = []; // For storing search results
+  List<PostingPekerjaan> results = [];
+  List<PostingPekerjaan> allresults = [];
+  dynamic user;
+  bool _isLoading = true;
+  String _errorMessage = '';
 
   @override
   void initState() {
     super.initState();
-    // Initialize results with the first 5 dummy jobs
-    results = dummyPostPekerjaan.take(5).map((job) {
-      return PostingPekerjaan(
-        idPostPekerjaan: job['id_post_pekerjaan'],
-        idPerusahaan: job['id_perusahaan'],
-        posisi: job['posisi'],
-        lokasi: job['lokasi'],
-        jobDetails: job['job_details'],
-        requirements: job['requirements'],
-        status: job['status'],
-        createdAt: job['createdAt'],
-      );
-    }).toList();
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    try {
+      var response = await meAPI().getUserProfile();
+
+      if (response['status'] == true && response['data'] != null) {
+        if (!mounted) return;
+        setState(() {
+          user = response['data'];
+        });
+
+        await _fetchPekerjaan();
+      } else {
+        if (!mounted) return;
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'Anda Tidak Login';
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Terjadi kesalahan: ${e.toString()}';
+      });
+    }
+  }
+
+  Future<void> _fetchPekerjaan() async {
+    try {
+      final pekerjaanData = await Postingpekerjaanapi().getAllPostPekerjaan();
+      if (!mounted) return;
+
+      setState(() {
+        allresults =
+            pekerjaanData.map((job) => PostingPekerjaan.fromJson(job)).toList();
+        results = allresults;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Gagal memuat data pekerjaan: $e';
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Center(
+          child: CircularProgressIndicator(
+        color: thirdColor,
+      ));
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
@@ -44,7 +92,7 @@ class _searchBarCariPekerjaan extends State<searchBarCariPekerjaan> {
             onChanged: (value) {
               setState(() {
                 query = value;
-                results = cariPekerjaan(query); // Update search results
+                results = cariPekerjaan(query);
               });
             },
             decoration: InputDecoration(
@@ -61,9 +109,7 @@ class _searchBarCariPekerjaan extends State<searchBarCariPekerjaan> {
               ),
             ),
           ),
-          SizedBox(height: 10), // Space between search bar and results
-
-          // Cek apakah hasil pencarian kosong
+          SizedBox(height: 10),
           results.isEmpty
               ? Container(
                   child: Column(
@@ -78,7 +124,7 @@ class _searchBarCariPekerjaan extends State<searchBarCariPekerjaan> {
                           fontSize: 25,
                           fontWeight: FontWeight.w500,
                         ),
-                      )) // Tampilkan pesan jika kosong
+                      ))
                     ],
                   ),
                 )
@@ -90,18 +136,14 @@ class _searchBarCariPekerjaan extends State<searchBarCariPekerjaan> {
                     itemCount: results.length,
                     itemBuilder: (context, index) {
                       return Container(
-                        margin: EdgeInsets.symmetric(
-                            vertical: 5), // Space between items
+                        margin: EdgeInsets.symmetric(vertical: 5),
                         decoration: BoxDecoration(
-                          border: Border.all(
-                              color: Colors.grey), // Color of the border
-                          borderRadius:
-                              BorderRadius.circular(10), // Rounded corners
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(10),
                           color: Colors.white, // Background color
                         ),
                         child: InkWell(
                           onTap: () {
-                            // Navigate to the detail page with the job ID
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -126,37 +168,12 @@ class _searchBarCariPekerjaan extends State<searchBarCariPekerjaan> {
 
   List<PostingPekerjaan> cariPekerjaan(String query) {
     if (query.isEmpty) {
-      // Return first 5 jobs if query is empty
-      return dummyPostPekerjaan.take(5).map((job) {
-        return PostingPekerjaan(
-          idPostPekerjaan: job['id_post_pekerjaan'],
-          idPerusahaan: job['id_perusahaan'],
-          posisi: job['posisi'],
-          lokasi: job['lokasi'],
-          jobDetails: job['job_details'],
-          requirements: job['requirements'],
-          status: job['status'],
-          createdAt: job['createdAt'],
-        );
-      }).toList();
+      return allresults;
     }
 
-    // List for found jobs
-    List<PostingPekerjaan> foundPekerjaan = [];
-    for (var job in dummyPostPekerjaan) {
-      if (job['posisi'].toLowerCase().contains(query.toLowerCase())) {
-        foundPekerjaan.add(PostingPekerjaan(
-          idPostPekerjaan: job['id_post_pekerjaan'],
-          idPerusahaan: job['id_perusahaan'],
-          posisi: job['posisi'],
-          lokasi: job['lokasi'],
-          jobDetails: job['job_details'],
-          requirements: job['requirements'],
-          status: job['status'],
-          createdAt: job['createdAt'],
-        ));
-      }
-    }
-    return foundPekerjaan; // Return the list of matching jobs
+    return allresults.where((job) {
+      return job.posisi.toLowerCase().contains(query.toLowerCase()) ||
+          job.lokasi.toLowerCase().contains(query.toLowerCase());
+    }).toList();
   }
 }

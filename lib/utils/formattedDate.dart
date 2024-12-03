@@ -1,6 +1,10 @@
-import 'package:intl/intl.dart'; // Import intl package
+import 'package:intl/intl.dart';
 
-// Fungsi untuk format tanggal
-String formatTanggal(DateTime date) {
-  return DateFormat('dd-MM-yyyy').format(date); // Format tanggal sesuai kebutuhan
+String formatTanggal(String dateString) {
+  try {
+    DateTime date = DateTime.parse(dateString);
+    return DateFormat('dd-MM-yyyy').format(date);
+  } catch (e) {
+    return dateString;
+  }
 }
