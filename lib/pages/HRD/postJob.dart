@@ -50,7 +50,6 @@ class _PostjobState extends State<Postjob> {
     if (granted != null && !granted) {
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Izin notifikasi ditolak oleh pengguna ')));
-      // print("Izin notifikasi ditolak oleh pengguna");
     }
   }
 

@@ -179,4 +179,26 @@ class Postingpekerjaanapi {
       throw Exception('Terjadi kesalahan: $e');
     }
   }
+
+  Future<List<Map<String, dynamic>>> getAllPostPekerjaan() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('auth_token');
+
+    final response = await http.get(
+      Uri.parse('$apiUrl/postPekerjaan/getPostAllPostingan'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var data = json.decode(response.body);
+      List<dynamic> postings = data['data'];
+
+      return postings.map((post) => Map<String, dynamic>.from(post)).toList();
+    } else {
+      throw Exception('Gagal mengambil data postingan pekerjaan');
+    }
+  }
 }

@@ -1,12 +1,12 @@
 class PostingPekerjaan {
-  int idPostPekerjaan;
-  int idPerusahaan;
-  String posisi;
-  String lokasi;
-  String jobDetails;
-  String requirements;
-  String status; // 'tersedia' or 'berakhir'
-  DateTime createdAt;
+  final int idPostPekerjaan;
+  final int idPerusahaan;
+  final String posisi;
+  final String lokasi;
+  final String jobDetails;
+  final String requirements;
+  final String status;
+  final DateTime createdAt;
 
   PostingPekerjaan({
     required this.idPostPekerjaan,
@@ -18,4 +18,18 @@ class PostingPekerjaan {
     required this.status,
     required this.createdAt,
   });
+
+  factory PostingPekerjaan.fromJson(Map<String, dynamic> json) {
+    return PostingPekerjaan(
+      idPostPekerjaan: json['id_post_pekerjaan'],
+      idPerusahaan: json['id_perusahaan'],
+      posisi: json['posisi'],
+      lokasi: json['lokasi'],
+      jobDetails: json['job_details'],
+      requirements: json['requirements'],
+      status: json['status'],
+      createdAt:
+          DateTime.parse(json['createdAt']), // Konversi String ke DateTime
+    );
+  }
 }

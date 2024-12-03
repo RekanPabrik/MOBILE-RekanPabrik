@@ -8,8 +8,59 @@ class home_pelamar extends StatefulWidget {
 }
 
 class _homePelamar extends State<home_pelamar> {
+  var user;
+  bool isLoading = true;
+  final String defaultFotoIMG = 'assets/img/defaultPict.png';
+
+  @override
+  void initState() {
+    super.initState();
+    initUser();
+  }
+
+  Future<void> initUser() async {
+    var response = await meAPI().getUserProfile();
+    try {
+      if (response['status'] == true && response['data'] != null) {
+        setState(() {
+          user = response['data'];
+          isLoading = false;
+        });
+      } else {
+        if (!mounted) return;
+        isLoading = false;
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Anda belum login ')));
+        Navigator.pushNamed(context, '/login');
+        print("Failed to retrieve user data: ${response['message']}");
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Anda belum login ')));
+      Navigator.pushNamed(context, '/login');
+      print("Failed to retrieve user data: ${response['message']}");
+    } finally {
+      if (!mounted) return;
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return Scaffold(
+        backgroundColor: primaryColor,
+        body: Center(
+          child: CircularProgressIndicator(
+            color: thirdColor,
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: primaryColor,
       body: SafeArea(
@@ -23,7 +74,7 @@ class _homePelamar extends State<home_pelamar> {
             Center(
               child: Container(
                 width: 350,
-                height: 120, // Sesuaikan tinggi untuk menampung teks tambahan
+                height: 120,
                 decoration: BoxDecoration(
                   color: thirdColor,
                   borderRadius: BorderRadius.circular(20),
@@ -40,28 +91,22 @@ class _homePelamar extends State<home_pelamar> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Membuat kolom di sebelah kiri untuk teks "Welcome" dan nama user
                     Column(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.start, // Agar teks rata kiri
-                      mainAxisAlignment:
-                          MainAxisAlignment.center, // Vertikal di tengah
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           "Welcome back!",
                           style: TextStyle(
                             color: Colors.white,
                             fontFamily: 'poppins',
-                            fontSize:
-                                14, // Ukuran font lebih kecil untuk "Welcome"
-                            fontWeight:
-                                FontWeight.w400, // Berat font lebih ringan
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
                           ),
                         ),
-                        SizedBox(
-                            height: 5), // Jarak antara "Welcome" dan nama user
+                        SizedBox(height: 5),
                         Text(
-                          "Nama User",
+                          user[0][0]['first_name'].toString(),
                           style: TextStyle(
                             color: Colors.white,
                             fontFamily: 'poppins',
@@ -71,11 +116,13 @@ class _homePelamar extends State<home_pelamar> {
                         ),
                       ],
                     ),
-                    // Avatar berada di kanan
                     CircleAvatar(
                       radius: 40,
                       backgroundColor: Colors.green,
-                      backgroundImage: AssetImage('assets/img/dapa.png'),
+                      backgroundImage: (user?[0][0]['profile_pict'] != null
+                          ? NetworkImage(user[0][0]['profile_pict'])
+                              as ImageProvider
+                          : AssetImage(defaultFotoIMG) as ImageProvider),
                     ),
                   ],
                 ),
@@ -118,37 +165,34 @@ class _homePelamar extends State<home_pelamar> {
                   Navigator.pushNamed(context, '/cariPabrik');
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      Colors.white, // Warna background tombol menjadi putih
+                  backgroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(
                     vertical: 10,
                     horizontal: 30,
                   ),
                   shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(10), // Membuat border radius
+                    borderRadius: BorderRadius.circular(10),
                     side: BorderSide(
-                      color: Colors.black, // Warna border menjadi hitam
-                      width: 2.0, // Ketebalan border
+                      color: Colors.black,
+                      width: 2.0,
                     ),
                   ),
                 ),
                 child: Row(
-                  mainAxisSize:
-                      MainAxisSize.min, // Agar Row tidak memenuhi lebar penuh
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       'See More',
                       style: TextStyle(
                         fontSize: 15,
-                        color: Colors.black, // Warna teks tetap hitam
+                        color: Colors.black,
                         fontFamily: 'poppins',
                       ),
                     ),
-                    SizedBox(width: 8), // Jarak antara teks dan ikon panah
+                    SizedBox(width: 8),
                     Icon(
-                      Icons.arrow_forward, // Panah ke kanan
-                      color: Colors.black, // Warna panah hitam
+                      Icons.arrow_forward,
+                      color: Colors.black,
                     ),
                   ],
                 ),
