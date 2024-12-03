@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:rekanpabrik/models/users/pelamar.dart';
 import 'package:rekanpabrik/pages/page.dart';
 import 'package:rekanpabrik/shared/shared.dart';
 

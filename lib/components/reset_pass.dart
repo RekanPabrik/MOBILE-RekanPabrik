@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:rekanpabrik/components/pass_input.dart';
 import 'package:rekanpabrik/shared/shared.dart';
 
 class Resetpass extends StatefulWidget {
@@ -273,4 +272,3 @@ class _ResetpassState extends State<Resetpass> {
     );
   }
 }
-

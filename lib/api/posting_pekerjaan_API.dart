@@ -112,7 +112,6 @@ class Postingpekerjaanapi {
       int idPerusahaan) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
-    const status = "ditutup";
 
     if (token == null) {
       throw Exception("Terjadi kesalahan:");

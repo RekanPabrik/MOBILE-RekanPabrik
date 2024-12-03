@@ -4,8 +4,6 @@ import 'package:rekanpabrik/api/posting_pekerjaan_API.dart';
 import 'package:rekanpabrik/models/postingPekerjaan.dart';
 import 'package:rekanpabrik/pages/page.dart';
 import 'package:rekanpabrik/shared/shared.dart';
-import 'package:rekanpabrik/utils/dummyPerusahaan.dart';
-import 'package:rekanpabrik/utils/dummyPostinganPekerjaan.dart';
 
 class searchBarCariPekerjaan extends StatefulWidget {
   const searchBarCariPekerjaan({super.key});
