@@ -23,8 +23,7 @@ class MyApp extends StatelessWidget {
           primaryColor: primaryColor,
           appBarTheme: AppBarTheme(backgroundColor: primaryColor),
           bottomNavigationBarTheme: BottomNavigationBarThemeData(
-            backgroundColor:
-                Colors.transparent, // Atur coklat sesuai kebutuhanmu
+            backgroundColor: Colors.transparent,
             selectedItemColor: Colors.black,
             unselectedItemColor: Colors.white,
           )),

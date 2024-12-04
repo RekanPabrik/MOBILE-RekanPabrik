@@ -79,4 +79,65 @@ class Pelamarapi {
       return false;
     }
   }
+
+  Future<bool> updateCV({
+    required int idpelamar,
+    required File imagePath,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    if (token == null) {
+      return false;
+    }
+
+    var request = http.MultipartRequest(
+      'PATCH',
+      Uri.parse('$apiUrl/pelamar/updateCV/$idpelamar'),
+    );
+
+    request.headers['Authorization'] = 'Bearer $token';
+
+    if (await imagePath.exists()) {
+      final mimeType = lookupMimeType(imagePath.path);
+      request.files.add(await http.MultipartFile.fromPath('CV', imagePath.path,
+          contentType: MediaType.parse(mimeType ?? 'application/pdf')));
+    } else {
+      return false;
+    }
+
+    final response = await request.send();
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> changePassword(
+      {required int idpelamar, required String newPassword}) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    if (token == null) {
+      return false;
+    }
+
+    var url = Uri.parse('$apiUrl/pelamar/changePassword/$idpelamar');
+
+    final response = await http.patch(url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'newPass': newPassword,
+        }));
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

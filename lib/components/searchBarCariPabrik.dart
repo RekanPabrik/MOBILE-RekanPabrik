@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:rekanpabrik/models/users/perusahaan.dart';
+import 'package:rekanpabrik/api/meAPI.dart';
+import 'package:rekanpabrik/api/perusahaanAPI.dart';
+import 'package:rekanpabrik/models/Perusahaan.dart';
 import 'package:rekanpabrik/pages/page.dart';
 import 'package:rekanpabrik/shared/shared.dart';
-import 'package:rekanpabrik/utils/dummyPerusahaan.dart';
 
 class searchBarCariPabrik extends StatefulWidget {
   const searchBarCariPabrik({super.key});
@@ -13,35 +14,67 @@ class searchBarCariPabrik extends StatefulWidget {
 
 class _searchBarCariPabrik extends State<searchBarCariPabrik> {
   String query = '';
-  List<Perusahaan> results = []; // For storing search results
+  List<Perusahaan> results = [];
+  List<Perusahaan> allresults = [];
+  var user;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    results = dummyPerusahaan.take(5).map((perusahaan) {
-      return Perusahaan(
-        // idPerusahaan: perusahaan['idPerusahaan'],
-        // email: perusahaan['email'],
-        // password: perusahaan['password'],
-        // role: perusahaan['role'],
-        // namaPerusahaan: perusahaan['namaPerusahaan'],
-        // aboutMe: perusahaan['aboutMe'],
-        // profilePict: perusahaan['profilePict'],
-        // alamat: perusahaan['alamat'],
-        idPerusahaan: perusahaan['id'],
-        email: perusahaan['nama'],
-        password: perusahaan['nama'],
-        role: perusahaan['nama'],
-        namaPerusahaan: perusahaan['namaPerusahaanAsli'],
-        aboutMe: perusahaan['about'],
-        profilePict: perusahaan['img'],
-        alamat: perusahaan['alamat'],
-      );
-    }).toList(); // Initialize with the first 5 companies
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    try {
+      var response = await meAPI().getUserProfile();
+      if (response['status'] == true && response['data'] != null) {
+        if (!mounted) return;
+        setState(() {
+          user = response['data'];
+        });
+        await _fetchPerusahaan();
+      } else {
+        if (!mounted) return;
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _fetchPerusahaan() async {
+    try {
+      final pekerjaanData = await PerusahaanAPI().getAllPerusahaan();
+      print(pekerjaanData);
+      if (!mounted) return;
+      setState(() {
+        allresults =
+            pekerjaanData.map((job) => Perusahaan.fromJson(job)).toList();
+        results = allresults;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Center(
+          child: CircularProgressIndicator(
+        color: thirdColor,
+      ));
+    }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
@@ -50,7 +83,7 @@ class _searchBarCariPabrik extends State<searchBarCariPabrik> {
             onChanged: (value) {
               setState(() {
                 query = value;
-                results = cariPerusahaan(query);
+                results = CariPabrik(query);
               });
             },
             decoration: InputDecoration(
@@ -67,9 +100,7 @@ class _searchBarCariPabrik extends State<searchBarCariPabrik> {
               ),
             ),
           ),
-          SizedBox(height: 10), // Space between search bar and results
-
-          // Cek apakah hasil pencarian kosong
+          SizedBox(height: 10),
           results.isEmpty
               ? Container(
                   child: Column(
@@ -84,57 +115,39 @@ class _searchBarCariPabrik extends State<searchBarCariPabrik> {
                           fontSize: 25,
                           fontWeight: FontWeight.w500,
                         ),
-                      )) // Tampilkan pesan jika kosong
+                      ))
                     ],
                   ),
                 )
               : Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
-                  height: 600,
+                  height: 300,
                   child: ListView.builder(
                     itemCount: results.length,
                     itemBuilder: (context, index) {
                       return Container(
-                        margin: EdgeInsets.symmetric(
-                            vertical: 5), // Space between items
+                        margin: EdgeInsets.symmetric(vertical: 5),
                         decoration: BoxDecoration(
-                          border: Border.all(
-                              color: Colors.grey), // Color of the border
+                          border: Border.all(color: Colors.grey),
                           borderRadius:
                               BorderRadius.circular(10), // Rounded corners
-                          color: Colors.white, // Background color
+                          color: Colors.white,
                         ),
                         child: InkWell(
                           onTap: () {
-                            // Navigate to the detail page with the company ID
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => detailPerusahaan(
+                                builder: (context) => DetailPerusahaan(
                                     companyId: results[index].idPerusahaan),
                               ),
                             );
                           },
-                          // child: ListTile(
-                          //   leading: results[index].profilePict != null &&
-                          //           results[index].profilePict!.isNotEmpty
-                          //       ? Image.network(results[index].profilePict!)
-                          //       : const Icon(Icons.person,
-                          //           size: 40), // Use a person icon as fallback
-                          //   title: Text(results[index].namaPerusahaan),
-                          //   subtitle:
-                          //       Text('${results[index].idPerusahaan} Lowongan'),
-                          // ),
                           child: ListTile(
-                            leading: results[index].profilePict != null &&
-                                    results[index].profilePict!.isNotEmpty
-                                ? Image.asset(results[index].profilePict!)
-                                : const Icon(Icons.person,
-                                    size: 40), // Use a person icon as fallback
                             title: Text(results[index].namaPerusahaan),
-                            subtitle:
-                                Text('${results[index].idPerusahaan} Lowongan'),
+                            subtitle: Text(
+                                '${results[index].jumlahPostingan} Lowongan'),
                           ),
                         ),
                       );
@@ -146,54 +159,13 @@ class _searchBarCariPabrik extends State<searchBarCariPabrik> {
     );
   }
 
-  List<Perusahaan> cariPerusahaan(String nama) {
-    if (nama.isEmpty) {
-      return dummyPerusahaan.take(5).map((perusahaan) {
-        return Perusahaan(
-          // idPerusahaan: perusahaan['idPerusahaan'],
-          // email: perusahaan['email'],
-          // password: perusahaan['password'],
-          // role: perusahaan['role'],
-          // namaPerusahaan: perusahaan['namaPerusahaan'],
-          // aboutMe: perusahaan['aboutMe'],
-          // profilePict: perusahaan['profilePict'],
-          // alamat: perusahaan['alamat'],
-          idPerusahaan: perusahaan['id'],
-          email: perusahaan['nama'],
-          password: perusahaan['nama'],
-          role: perusahaan['nama'],
-          namaPerusahaan: perusahaan['namaPerusahaanAsli'],
-          aboutMe: perusahaan['about'],
-          profilePict: perusahaan['img'],
-          alamat: perusahaan['alamat'],
-        );
-      }).toList();
+  List<Perusahaan> CariPabrik(String query) {
+    if (query.isEmpty) {
+      return allresults;
     }
 
-    // List for found companies
-    List<Perusahaan> foundPerusahaan = [];
-    for (var perusahaan in dummyPerusahaan) {
-      if (perusahaan['nama'].toLowerCase().contains(nama.toLowerCase())) {
-        foundPerusahaan.add(Perusahaan(
-          // idPerusahaan: perusahaan['idPerusahaan'],
-          // email: perusahaan['email'],
-          // password: perusahaan['password'],
-          // role: perusahaan['role'],
-          // namaPerusahaan: perusahaan['namaPerusahaan'],
-          // aboutMe: perusahaan['aboutMe'],
-          // profilePict: perusahaan['profilePict'],
-          // alamat: perusahaan['alamat'],
-          idPerusahaan: perusahaan['id'],
-          email: perusahaan['nama'],
-          password: perusahaan['nama'],
-          role: perusahaan['nama'],
-          namaPerusahaan: perusahaan['namaPerusahaanAsli'],
-          aboutMe: perusahaan['about'],
-          profilePict: perusahaan['img'],
-          alamat: perusahaan['alamat'],
-        ));
-      }
-    }
-    return foundPerusahaan; // Return the list of matching companies
+    return allresults.where((company) {
+      return company.namaPerusahaan.toLowerCase().contains(query.toLowerCase());
+    }).toList();
   }
 }

@@ -104,19 +104,19 @@ class _HomepagehrdState extends State<Homepagehrd> {
                             color: Colors.white,
                             fontFamily: 'poppins',
                             fontSize:
-                                14, // Ukuran font lebih kecil untuk "Welcome"
+                                20, // Ukuran font lebih kecil untuk "Welcome"
                             fontWeight:
-                                FontWeight.w400, // Berat font lebih ringan
+                                FontWeight.bold, // Berat font lebih ringan
                           ),
                         ),
                         SizedBox(
                             height: 5), // Jarak antara "Welcome" dan nama user
                         Text(
-                          "Nama User",
+                          user[0][0]['nama_perusahaan'].toString(),
                           style: TextStyle(
                             color: Colors.white,
                             fontFamily: 'poppins',
-                            fontSize: 22,
+                            fontSize: 15,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

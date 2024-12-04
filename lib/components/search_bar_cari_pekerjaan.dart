@@ -62,6 +62,7 @@ class _searchBarCariPekerjaan extends State<searchBarCariPekerjaan> {
         allresults =
             pekerjaanData.map((job) => PostingPekerjaan.fromJson(job)).toList();
         results = allresults;
+        results = results.take(5).toList();
         _isLoading = false;
       });
     } catch (e) {
@@ -129,7 +130,7 @@ class _searchBarCariPekerjaan extends State<searchBarCariPekerjaan> {
               : Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
-                  height: 600,
+                  height: 300,
                   child: ListView.builder(
                     itemCount: results.length,
                     itemBuilder: (context, index) {
