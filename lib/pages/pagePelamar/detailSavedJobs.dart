@@ -1,52 +1,135 @@
 part of '../page.dart';
 
-class detailSavedJobs extends StatelessWidget {
+class Detailsavedjobs extends StatefulWidget {
   final int jobId;
+  final int savedJobsId;
 
-  const detailSavedJobs({super.key, required this.jobId});
+  const Detailsavedjobs(
+      {super.key, required this.jobId, required this.savedJobsId});
+
+  @override
+  State<Detailsavedjobs> createState() => _DetailsavedjobsState();
+}
+
+class _DetailsavedjobsState extends State<Detailsavedjobs> {
+  final Postingpekerjaanapi postingpekerjaanapi = Postingpekerjaanapi();
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  final meAPI meapi = meAPI();
+  var user;
+  Map<String, dynamic>? selectedJob;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchJobDetails();
+    initUser();
+  }
+
+  Future<void> initUser() async {
+    var response = await meAPI().getUserProfile();
+    try {
+      if (response['status'] == true && response['data'] != null) {
+        setState(() {
+          user = response['data'];
+          isLoading = false;
+        });
+      } else {
+        if (!mounted) return;
+        isLoading = false;
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Anda belum login ')));
+        Navigator.pushNamed(context, '/login');
+        print("Failed to retrieve user data: ${response['message']}");
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Anda belum login ')));
+      Navigator.pushNamed(context, '/login');
+      print("Failed to retrieve user data: ${response['message']}");
+    } finally {
+      if (!mounted) return;
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _fetchJobDetails() async {
+    try {
+      List<Map<String, dynamic>> jobDetails =
+          await postingpekerjaanapi.detailsJob(widget.jobId);
+      if (jobDetails.isNotEmpty) {
+        setState(() {
+          selectedJob = jobDetails.first;
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print("Error loading job details: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _DeleteSavedJobs(int idsavedjobs) async {
+    bool status = await SavedJobsApi().delSavedJobs(idsavedjobs);
+
+    try {
+      if (status) {
+        Navigator.pushNamed(context, '/pagePelamar');
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Pekerjaan tersimpan telah di hapus ')));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Gagal menghapus pekerjaan tersimpan')));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error menghapus pekerjaan tersimpan')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final selectedJob = dummyPostPekerjaan.firstWhere(
-      (job) => job['id_post_pekerjaan'] == jobId,
-      orElse: () => {'id_perusahaan': 0},
-    );
-
-    if (selectedJob['id_post_pekerjaan'] == 0) {
+    if (isLoading) {
       return Scaffold(
+        backgroundColor: primaryColor,
         appBar: AppBar(
           title: Text("Detail Pekerjaan"),
         ),
         body: Center(
-          child: Text("Pekerjaan tidak ditemukan."),
+          child: CircularProgressIndicator(color: thirdColor),
         ),
       );
     }
 
-    Color statusColor;
-    String statusText;
-
-    if (selectedJob['status'] == 'tersedia') {
-      statusColor = Colors.green; // Warna hijau untuk 'tersedia'
-      statusText = "Tersedia";
-    } else {
-      statusColor = Colors.red; // Warna merah untuk 'berakhir'
-      statusText = "Berakhir";
+    if (selectedJob == null) {
+      return Scaffold(
+        backgroundColor: primaryColor,
+        appBar: AppBar(
+          title: Text("Detail Pekerjaan"),
+        ),
+        body: Center(
+          child: Text(
+            "Data pekerjaan tidak ditemukan.",
+            style: TextStyle(fontSize: 18, color: Colors.white),
+          ),
+        ),
+      );
     }
 
-    void simpanPekerjaan(int idPostPekerjaan) {
-      if (idPostPekerjaan == 0) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Harap pilih pekerjaan')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Pekerjaan tersimpan')),
-        );
-        Navigator.pushNamed(context, '/pagePelamar');
-      }
-    }
-
+    Color statusColor =
+        selectedJob!['status'] == 'terbuka' ? Colors.green : Colors.red;
+    String statusText =
+        selectedJob!['status'] == 'terbuka' ? "Terbuka" : "Berakhir";
     return Scaffold(
       backgroundColor: primaryColor,
       appBar: AppBar(
@@ -62,7 +145,7 @@ class detailSavedJobs extends StatelessWidget {
             ),
             Align(
               child: Text(
-                selectedJob['posisi'],
+                selectedJob!['posisi'],
                 style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.bold,
@@ -74,7 +157,7 @@ class detailSavedJobs extends StatelessWidget {
               child: Column(
                 children: [
                   Text(
-                    "Lokasi: ${selectedJob['lokasi']}",
+                    "Lokasi: ${selectedJob!['lokasi']}",
                     style: TextStyle(fontSize: 20),
                   ),
                   SizedBox(height: 10),
@@ -103,7 +186,7 @@ class detailSavedJobs extends StatelessWidget {
             ),
             SizedBox(height: 10),
             Text(
-              selectedJob['job_details'] ?? "Tidak ada deskripsi pekerjaan.",
+              selectedJob!['job_details'] ?? "Tidak ada deskripsi pekerjaan.",
               style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 20),
@@ -113,43 +196,64 @@ class detailSavedJobs extends StatelessWidget {
             ),
             SizedBox(height: 10),
             Text(
-              selectedJob['requirements'] ?? "Tidak ada persyaratan.",
+              selectedJob!['requirements'] ?? "Tidak ada persyaratan.",
               style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 50),
             Align(
-                child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => LamarPekerjaan(
-                          jobId: selectedJob[
-                              'id_post_pekerjaan'], // Pastikan ID yang benar
+              child: selectedJob!['status'] == 'ditutup'
+                  ? SizedBox()
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            _DeleteSavedJobs(widget.savedJobsId);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            side: BorderSide(
+                              color: dangerColor, // Warna border
+                              width: 2, // Lebar border
+                            ),
+                            backgroundColor: primaryColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 10),
+                          ),
+                          child: Text(
+                            'Hapus Pekerjaan',
+                            style: TextStyle(fontSize: 16, color: dangerColor),
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: thirdColor, // Latar belakang biru
-                    shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(10), // Border radius 10
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => LamarPekerjaan(
+                                  jobId: selectedJob!['id_post_pekerjaan'],
+                                ),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: thirdColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 10),
+                          ),
+                          child: Text(
+                            'Lamar Pekerjaan',
+                            style: TextStyle(fontSize: 16, color: Colors.white),
+                          ),
+                        ),
+                      ],
                     ),
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 10), // Padding tombol
-                  ),
-                  child: Text(
-                    'Lamar Pekerjaan',
-                    style: TextStyle(
-                        fontSize: 16, color: Colors.white), // Teks tombol
-                  ),
-                ),
-              ],
-            ))
+            ),
           ],
         ),
       ),

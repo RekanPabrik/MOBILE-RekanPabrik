@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:rekanpabrik/api/meAPI.dart';
-import 'package:rekanpabrik/api/posting_pekerjaan_API.dart';
 import 'package:rekanpabrik/api/saved_jobs_API.dart';
-import 'package:rekanpabrik/models/postingPekerjaan.dart';
+import 'package:rekanpabrik/models/savedJobs.dart';
 import 'package:rekanpabrik/pages/page.dart';
 import 'package:rekanpabrik/shared/shared.dart';
-import 'package:rekanpabrik/utils/dummyPerusahaan.dart';
-import 'package:rekanpabrik/utils/dummyPostinganPekerjaan.dart';
 
 class searchBarSavedJobs extends StatefulWidget {
   const searchBarSavedJobs({super.key});
@@ -17,9 +14,9 @@ class searchBarSavedJobs extends StatefulWidget {
 
 class _searchBarSavedJobs extends State<searchBarSavedJobs> {
   String query = '';
-  List<PostingPekerjaan> results = [];
-  List<PostingPekerjaan> allresults = [];
-  dynamic user;
+  List<SavedJobs> results = [];
+  List<SavedJobs> allresults = [];
+  var user;
   bool _isLoading = true;
   String _errorMessage = '';
 
@@ -32,13 +29,11 @@ class _searchBarSavedJobs extends State<searchBarSavedJobs> {
   Future<void> _fetchData() async {
     try {
       var response = await meAPI().getUserProfile();
-
       if (response['status'] == true && response['data'] != null) {
         if (!mounted) return;
         setState(() {
           user = response['data'];
         });
-
         await _fetchPekerjaan();
       } else {
         if (!mounted) return;
@@ -62,10 +57,9 @@ class _searchBarSavedJobs extends State<searchBarSavedJobs> {
       final pekerjaanData =
           await SavedJobsApi().getSavedJobsByIDPelamar(idpelamar);
       if (!mounted) return;
-
       setState(() {
         allresults =
-            pekerjaanData.map((job) => PostingPekerjaan.fromJson(job)).toList();
+            pekerjaanData.map((job) => SavedJobs.fromJson(job)).toList();
         results = allresults;
         _isLoading = false;
       });
@@ -151,7 +145,8 @@ class _searchBarSavedJobs extends State<searchBarSavedJobs> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => detailSavedJobs(
+                                builder: (context) => Detailsavedjobs(
+                                    savedJobsId: results[index].idSavedJobs,
                                     jobId: results[index].idPostPekerjaan),
                               ),
                             );
@@ -170,7 +165,7 @@ class _searchBarSavedJobs extends State<searchBarSavedJobs> {
     );
   }
 
-  List<PostingPekerjaan> cariPekerjaan(String query) {
+  List<SavedJobs> cariPekerjaan(String query) {
     if (query.isEmpty) {
       return allresults;
     }

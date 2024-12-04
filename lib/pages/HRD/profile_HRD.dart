@@ -16,7 +16,6 @@ class _ProfilehrdState extends State<Profilehrd> {
   final TextEditingController tentangPerusahaanController =
       TextEditingController();
   final String defaultFotoIMG = 'assets/img/defaultPict.png';
-  final ImagePicker _picker = ImagePicker();
   final LoginAPI loginapi = LoginAPI();
   final meAPI meapi = meAPI();
   final PerusahaanAPI perusahaanapi = PerusahaanAPI();

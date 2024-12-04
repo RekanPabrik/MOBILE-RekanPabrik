@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:rekanpabrik/components/HRDnavbarComponent.dart';
-import 'package:rekanpabrik/components/navbarComponent.dart';
+import 'package:rekanpabrik/components/navbar_component.dart';
 import 'package:rekanpabrik/pages/page.dart';
 import 'package:rekanpabrik/shared/shared.dart';
 
