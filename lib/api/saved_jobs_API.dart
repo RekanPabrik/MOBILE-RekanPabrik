@@ -22,6 +22,7 @@ class SavedJobsApi {
     if (response.statusCode == 200) {
       var data = json.decode(response.body);
       List<dynamic> postings = data['data'];
+      print(postings);
 
       return postings.map((post) => Map<String, dynamic>.from(post)).toList();
     } else {
@@ -45,6 +46,29 @@ class SavedJobsApi {
         },
         body: jsonEncode(
             {"idPelamar": idpelamar, "idPostPekerjaan": idpostpekerjaan}));
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> delSavedJobs(int idsavedjobs) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('auth_token');
+
+    if (token == null) {
+      return false;
+    }
+
+    var url = Uri.parse('$apiUrl/saveJobs/deletSavedJobs');
+    final response = await http.delete(url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({"idSavedJobs": idsavedjobs}));
 
     if (response.statusCode == 200) {
       return true;
