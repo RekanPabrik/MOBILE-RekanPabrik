@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:rekanpabrik/api/meAPI.dart';
+import 'package:rekanpabrik/api/melamar_pekerjaanAPI.dart';
 import 'package:rekanpabrik/models/melamarPekerjaan.dart';
-import 'package:rekanpabrik/models/postingPekerjaan.dart';
 import 'package:rekanpabrik/pages/page.dart';
 import 'package:rekanpabrik/shared/shared.dart';
 import 'package:rekanpabrik/utils/dummyMelamarPekerjaan.dart';
-import 'package:rekanpabrik/utils/dummyPerusahaan.dart';
 import 'package:rekanpabrik/utils/dummyPostinganPekerjaan.dart';
 
 class searchBarRiwayatLamaran extends StatefulWidget {
@@ -16,19 +16,58 @@ class searchBarRiwayatLamaran extends StatefulWidget {
 
 class _searchBarRiwayatLamaran extends State<searchBarRiwayatLamaran> {
   String query = '';
-  List<MelamarPekerjaan> results = []; // For storing search results
+  List<MelamarPekerjaan> results = [];
+  List<MelamarPekerjaan> allresults = [];
+  var user;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    results = dummyLamaranPekerjaan.take(5).map((lamaran) {
-      return MelamarPekerjaan(
-        idLamaranPekerjaan: lamaran['idLamaranPekerjaan'],
-        idPostPekerjaan: lamaran['idPostPekerjaan'],
-        status: lamaran['status'],
-        createdAt: lamaran['createdAt'],
-      );
-    }).toList();
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    try {
+      var response = await meAPI().getUserProfile();
+      if (response['status'] == true && response['data'] != null) {
+        if (!mounted) return;
+        setState(() {
+          user = response['data'];
+        });
+        await _fetchHistory();
+      } else {
+        if (!mounted) return;
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _fetchHistory() async {
+    try {
+      int idpelamar = user[0][0]['id_pelamar'];
+      final pekerjaanData =
+          await MelamarPekerjaanapi().gethistoryLamaran(idpelamar);
+      if (!mounted) return;
+      setState(() {
+        allresults =
+            pekerjaanData.map((job) => MelamarPekerjaan.fromJson(job)).toList();
+        results = allresults;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   Color _getStatusColor(String status) {
@@ -46,6 +85,12 @@ class _searchBarRiwayatLamaran extends State<searchBarRiwayatLamaran> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Center(
+          child: CircularProgressIndicator(
+        color: thirdColor,
+      ));
+    }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
@@ -117,25 +162,25 @@ class _searchBarRiwayatLamaran extends State<searchBarRiwayatLamaran> {
                               MaterialPageRoute(
                                 builder: (context) => detailHistoryLamaran(
                                     idLamaranPekerjaan:
-                                        results[index].idLamaranPekerjaan),
+                                        results[index].idLamaranpPekerjaan),
                               ),
                             );
                           },
                           child: ListTile(
-                            title: Text(
-                                results[index].idLamaranPekerjaan.toString()),
-                            subtitle:
-                                Text(results[index].idPostPekerjaan.toString()),
+                            title:
+                                Text(results[index].namaPerusahaan.toString()),
+                            subtitle: Text(results[index].posisi.toString()),
                             trailing: Container(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color: _getStatusColor(results[index].status),
+                                color: _getStatusColor(
+                                    results[index].statusLamaran),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Text(
                                 results[index]
-                                    .status, // Tampilkan status ('diproses', 'diterima', 'ditolak')
+                                    .statusLamaran, // Tampilkan status ('diproses', 'diterima', 'ditolak')
                                 style: TextStyle(
                                   color: Colors.white, // Warna teks putih
                                   fontWeight: FontWeight.bold,
@@ -155,31 +200,13 @@ class _searchBarRiwayatLamaran extends State<searchBarRiwayatLamaran> {
 
   List<MelamarPekerjaan> cariPekerjaan(String query) {
     if (query.isEmpty) {
-      // Return first 5 jobs if query is empty
-      results = dummyLamaranPekerjaan.take(5).map((lamaran) {
-        return MelamarPekerjaan(
-          idLamaranPekerjaan: lamaran['idLamaranPekerjaan'],
-          idPostPekerjaan: lamaran['idPostPekerjaan'],
-          status: lamaran['status'],
-          createdAt: lamaran['createdAt'],
-        );
-      }).toList();
+      return allresults; // Jika query kosong, kembalikan semua hasil
     }
 
-    // List for found jobs
-    List<MelamarPekerjaan> foundPekerjaan = [];
-    for (var lamaran in dummyPostPekerjaan) {
-      if (lamaran['idLamaranPekerjaan']
-          .toLowerCase()
-          .contains(query.toLowerCase())) {
-        foundPekerjaan.add(MelamarPekerjaan(
-          idLamaranPekerjaan: lamaran['idLamaranPekerjaan'],
-          idPostPekerjaan: lamaran['idPostPekerjaan'],
-          status: lamaran['status'],
-          createdAt: lamaran['createdAt'],
-        ));
-      }
-    }
-    return foundPekerjaan; // Return the list of matching jobs
+    return allresults.where((job) {
+      return job.posisi.toLowerCase().contains(query.toLowerCase()) ||
+          job.namaDepanPelamar.toLowerCase().contains(query.toLowerCase()) ||
+          job.namaBelakangPelamar.toLowerCase().contains(query.toLowerCase());
+    }).toList();
   }
 }

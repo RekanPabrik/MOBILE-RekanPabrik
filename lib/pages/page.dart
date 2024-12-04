@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:rekanpabrik/api/loginAPI.dart';
 import 'package:rekanpabrik/api/meAPI.dart';
+import 'package:rekanpabrik/api/pelamarAPI.dart';
 import 'package:rekanpabrik/api/perusahaanAPI.dart';
 import 'package:rekanpabrik/api/posting_pekerjaan_API.dart';
 import 'package:rekanpabrik/api/saved_jobs_API.dart';
@@ -14,6 +15,8 @@ import 'package:rekanpabrik/components/companyName_input.dart';
 import 'package:rekanpabrik/components/search_bar_pelamar_pekerjaan.dart';
 import 'package:rekanpabrik/pages/HRD/change_profile_page_perusahaan.dart';
 import 'package:rekanpabrik/pages/HRD/resetPassPerusahaan.dart';
+import 'package:rekanpabrik/pages/pagePelamar/change_profile_page_pelamar.dart';
+import 'package:rekanpabrik/pages/pagePelamar/upload_cv.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:file_picker/file_picker.dart';
 
