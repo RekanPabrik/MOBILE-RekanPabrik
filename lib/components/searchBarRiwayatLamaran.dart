@@ -200,7 +200,7 @@ class _searchBarRiwayatLamaran extends State<searchBarRiwayatLamaran> {
 
   List<MelamarPekerjaan> cariPekerjaan(String query) {
     if (query.isEmpty) {
-      return allresults; // Jika query kosong, kembalikan semua hasil
+      return allresults;
     }
 
     return allresults.where((job) {

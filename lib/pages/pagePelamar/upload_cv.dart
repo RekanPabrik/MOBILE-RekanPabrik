@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:rekanpabrik/api/meAPI.dart';
+import 'package:rekanpabrik/api/pelamarAPI.dart';
 import 'package:rekanpabrik/shared/shared.dart';
 
 class UploadCv extends StatefulWidget {
@@ -12,6 +16,35 @@ class UploadCv extends StatefulWidget {
 class _UploadCvState extends State<UploadCv> {
   String? selectedFileName;
   bool isUploading = false;
+  File? CV;
+  var user;
+
+  @override
+  void initState() {
+    super.initState();
+    initUser();
+  }
+
+  Future<void> initUser() async {
+    try {
+      var response = await meAPI().getUserProfile();
+      if (response['status'] == true && response['data'] != null) {
+        setState(() {
+          user = response['data'];
+        });
+      } else {
+        print("Failed to retrieve user data: ${response['message']}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal mengambil data user')),
+        );
+      }
+    } catch (e) {
+      print("Error fetching user data: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error mengambil data user: ${e}')),
+      );
+    }
+  }
 
   Future<void> pickFile() async {
     try {
@@ -23,6 +56,7 @@ class _UploadCvState extends State<UploadCv> {
       if (result != null && result.files.single.path != null) {
         setState(() {
           selectedFileName = result.files.single.name;
+          CV = File(result.files.single.path!);
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -37,10 +71,11 @@ class _UploadCvState extends State<UploadCv> {
     }
   }
 
-  Future<void> uploadFile() async {
-    if (selectedFileName == null) {
+  Future<void> uploadFile(int idpelamar, File CV) async {
+    if (CV == null || !CV!.existsSync()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Pilih file terlebih dahulu!")),
+        const SnackBar(
+            content: Text("Pilih file yang valid sebelum mengunggah.")),
       );
       return;
     }
@@ -50,16 +85,24 @@ class _UploadCvState extends State<UploadCv> {
     });
 
     try {
-      await Future.delayed(const Duration(seconds: 2));
+      bool status =
+          await Pelamarapi().updateCV(idpelamar: idpelamar, imagePath: CV);
 
-      setState(() {
-        isUploading = false;
-      });
+      if (status) {
+        setState(() {
+          isUploading = false;
+        });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("CV berhasil diunggah!")),
-      );
-      Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("CV berhasil diunggah!")),
+        );
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text("Gagal mengunggah CV. Silakan coba lagi.")),
+        );
+      }
     } catch (e) {
       setState(() {
         isUploading = false;
@@ -105,11 +148,20 @@ class _UploadCvState extends State<UploadCv> {
               height: 50,
             ),
             ElevatedButton(
-              onPressed: isUploading ? null : uploadFile,
+              onPressed: isUploading
+                  ? null
+                  : () {
+                      int idpelamar = user[0][0]['id_pelamar'];
+                      if (CV != null) {
+                        uploadFile(idpelamar, CV!);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("File belum dipilih!")),
+                        );
+                      }
+                    },
               child: isUploading
-                  ? CircularProgressIndicator(
-                      color: thirdColor,
-                    )
+                  ? CircularProgressIndicator(color: thirdColor)
                   : const Text(
                       "Unggah CV",
                       style: TextStyle(color: Colors.white),

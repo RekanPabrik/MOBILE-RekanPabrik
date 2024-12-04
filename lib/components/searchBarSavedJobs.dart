@@ -61,6 +61,7 @@ class _searchBarSavedJobs extends State<searchBarSavedJobs> {
         allresults =
             pekerjaanData.map((job) => SavedJobs.fromJson(job)).toList();
         results = allresults;
+        results = results.take(5).toList();
         _isLoading = false;
       });
     } catch (e) {
@@ -128,7 +129,7 @@ class _searchBarSavedJobs extends State<searchBarSavedJobs> {
               : Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
-                  height: 600,
+                  height: 300,
                   child: ListView.builder(
                     itemCount: results.length,
                     itemBuilder: (context, index) {

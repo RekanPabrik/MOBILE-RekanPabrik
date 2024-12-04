@@ -76,11 +76,25 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _launchCV() async {
-    if (_cvURL != null) {
-      await launchUrl(_cvURL!, mode: LaunchMode.externalApplication);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Mengunduh CV...')),
-      );
+    if (_cvURL != null && _cvURL!.toString().isNotEmpty) {
+      try {
+        bool canLaunch = await canLaunchUrl(_cvURL!);
+        if (canLaunch) {
+          await launchUrl(_cvURL!, mode: LaunchMode.externalApplication);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Mengunduh CV...')),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('Tidak ada aplikasi untuk membuka URL ini.')),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal membuka CV: $e')),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('CV TIDAK ADA...')),
@@ -111,6 +125,24 @@ class _ProfilePageState extends State<ProfilePage> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error memperbarui Profil')),
+      );
+    }
+  }
+
+  Future<void> logout() async {
+    bool result = await LoginAPI().logout();
+    if (result) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => login_page()),
+        (route) => false, // Menghapus semua halaman sebelumnya di stack
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Anda sudah log out")),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Logout failed")),
       );
     }
   }
@@ -229,7 +261,12 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       ElevatedButton.icon(
                         onPressed: () {
-                          Navigator.pushNamed(context, '/uploadCv');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const UploadCv(),
+                            ),
+                          );
                         },
                         icon: const Icon(Icons.upload_file),
                         label: const Text("Upload CV Baru"),
@@ -249,7 +286,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(backgroundColor: dangerColor),
                   onPressed: () {
-                    Navigator.pushNamed(context, '/resetPass');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const Resetpasspelamar(),
+                      ),
+                    );
                   },
                   child: Text(
                     "Reset Password",
@@ -282,8 +324,24 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             ),
             SizedBox(
+              height: 50,
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: dangerColor),
+              onPressed: () {
+                logout();
+              },
+              child: Text(
+                "log out",
+                style: TextStyle(
+                    color: primaryColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15),
+              ),
+            ),
+            SizedBox(
               height: 200,
-            )
+            ),
           ],
         ),
       ),

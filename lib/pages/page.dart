@@ -16,9 +16,9 @@ import 'package:rekanpabrik/components/search_bar_pelamar_pekerjaan.dart';
 import 'package:rekanpabrik/pages/HRD/change_profile_page_perusahaan.dart';
 import 'package:rekanpabrik/pages/HRD/resetPassPerusahaan.dart';
 import 'package:rekanpabrik/pages/pagePelamar/change_profile_page_pelamar.dart';
+import 'package:rekanpabrik/pages/pagePelamar/resetPassPelamar.dart';
 import 'package:rekanpabrik/pages/pagePelamar/upload_cv.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:file_picker/file_picker.dart';
 
 // COMPONENTS
 import 'package:rekanpabrik/components/carousel.dart';
