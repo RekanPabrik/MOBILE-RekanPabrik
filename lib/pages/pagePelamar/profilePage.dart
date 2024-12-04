@@ -8,72 +8,73 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  // TextEditingControllers untuk input data pengguna
-  final TextEditingController firstNameController =
-      TextEditingController(text: "Rafif");
-  final TextEditingController lastNameController =
-      TextEditingController(text: "Purnomo");
-  final TextEditingController emailController =
-      TextEditingController(text: "rafif.purnomo@example.com");
-  final TextEditingController aboutMeController = TextEditingController(
-      text: "Saya seorang Software Engineer dengan 2+ tahun pengalaman.");
-  final String fotoIMG =
-      "https://firebasestorage.googleapis.com/v0/b/proyek-tingkat.appspot.com/o/foto-profile-user%2F1727209252774_.png?alt=media&token=f572040b-895b-449b-bdc1-d4f52badc483";
-  final String defaultFotoIMG =
-      "https://firebasestorage.googleapis.com/v0/b/proyek-tingkat.appspot.com/o/foto-profile-user%2F1727209252774_.png?alt=media&token=f572040b-895b-449b-bdc1-d4f52badc483";
-  
+  final TextEditingController firstNameController = TextEditingController();
+  final TextEditingController lastNameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController aboutMeController = TextEditingController();
+  final ImagePicker _picker = ImagePicker();
 
+  String defaultFotoIMG = 'assets/img/defaultPict.png';
   String cvStatus = '';
-
-  String existingCV =
-      //"https://firebasestorage.googleapis.com/v0/b/proyek-tingkat.appspot.com/o/curriculum-vitae%2F1727209251974_.pdf?alt=media&token=0e6fe89c-4c6a-42c5-a965-f66c699af0ec";
-      "";
   Uri? _cvURL;
+  File? _imageFile;
+  var user;
+  bool isLoading = true;
 
-  String? selectedCV;
-
-  File? _imageFile; // Variabel untuk menyimpan file gambar yang dipilih
-  final ImagePicker _picker = ImagePicker(); // Inisialisasi ImagePicker
-
-  void cekCV(String? existingCV) {
-    if (existingCV == null || existingCV.isEmpty) {
-      setState(() {
-        cvStatus = "Anda Belum Mengupload CV";
-      });
-    } else {
-      setState(() {
-        cvStatus =
-            "CV saat ini: ${firstNameController.text}${lastNameController.text}";
-      });
-    }
+  @override
+  void initState() {
+    super.initState();
+    initUser();
   }
 
-  // Fungsi untuk memilih CV baru
-  Future<void> pickCV() async {
+  Future<void> initUser() async {
+    setState(() {
+      isLoading = true;
+    });
+
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['pdf'],
-      );
+      var response = await meAPI().getUserProfile();
 
-      if (result != null && result.files.single.path != null) {
+      if (response['status'] == true && response['data'] != null) {
         setState(() {
-          selectedCV = result.files.single.name;
+          user = response['data'];
+          firstNameController.text = user[0][0]['first_name'].toString();
+          lastNameController.text = user[0][0]['last_name'].toString();
+          emailController.text = user[0][0]['email'].toString();
+          aboutMeController.text = user[0][0]['about_me'].toString();
+          _cvURL = Uri.parse(user[0][0]['curriculum_vitae'] ?? "");
+          cvStatus = _cvURL == null || _cvURL.toString().isEmpty
+              ? "Anda belum mengupload CV"
+              : "CV telah diunggah.";
         });
-
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('CV "${result.files.single.name}" dipilih!')),
+          SnackBar(
+              content:
+                  Text("Gagal memuat data pengguna: ${response['message']}")),
         );
       }
     } catch (e) {
-      debugPrint("Error saat memilih CV: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal memilih CV: $e')),
+        SnackBar(content: Text("Error memuat data pengguna: $e")),
       );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
-  // Fungsi untuk mengunduh CV
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+    }
+  }
+
   Future<void> _launchCV() async {
     if (_cvURL != null) {
       await launchUrl(_cvURL!, mode: LaunchMode.externalApplication);
@@ -87,33 +88,43 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  // Fungsi untuk menyimpan perubahan profil
-  void saveProfile() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Profil berhasil diperbarui!')),
-    );
-  }
+  Future<void> saveProfile(int idPelamar, String firstname, String lastname,
+      String email, String aboutme) async {
+    try {
+      bool status = await Pelamarapi().updateDataPelamar(
+          idpelamar: idPelamar,
+          firstname: firstname,
+          lastname: lastname,
+          email: email,
+          aboutme: aboutme);
 
-    // Fungsi untuk memilih gambar dari galeri
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      setState(() {
-        _imageFile = File(pickedFile.path); // Simpan gambar yang dipilih
-      });
+      if (status) {
+        Navigator.pushNamed(context, '/pagePelamar');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profil berhasil diperbarui!')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Gagal memperbarui Profil')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error memperbarui Profil')),
+      );
     }
   }
 
   @override
-  void initState() {
-    super.initState();
-    _cvURL = Uri.parse(existingCV);
-    cekCV(existingCV);
-  }
-
-  @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: primaryColor,
       body: SafeArea(
@@ -121,21 +132,26 @@ class _ProfilePageState extends State<ProfilePage> {
         child: ListView(
           padding: EdgeInsets.symmetric(horizontal: 10),
           children: [
-            SizedBox(
-              height: 30,
-            ),
-            // Foto profil
+            const SizedBox(height: 30),
             CircleAvatar(
               radius: 80,
               backgroundImage: _imageFile == null
-                  ? NetworkImage(defaultFotoIMG) // Jika belum ada file gambar yang dipilih, gunakan URL default
-                  : FileImage(_imageFile!) as ImageProvider, // Jika sudah ada, gunakan gambar yang dipilih
+                  ? (user?[0][0]['profile_pict'] != null
+                      ? NetworkImage(user[0][0]['profile_pict'])
+                          as ImageProvider
+                      : AssetImage(defaultFotoIMG) as ImageProvider)
+                  : FileImage(_imageFile!),
             ),
-
-             const SizedBox(height: 20),
-            // Button lingkaran untuk mengganti foto profil
+            const SizedBox(height: 20),
             InkWell(
-              onTap: _pickImage, // Fungsi untuk memilih foto dari galeri
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ChangeProfilePagePelamar(),
+                  ),
+                );
+              },
               child: CircleAvatar(
                 radius: 20,
                 backgroundColor: Colors.grey,
@@ -147,7 +163,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             const SizedBox(height: 20),
 
-            // Input Nama Depan
+            // Input Fields
             TextField(
               controller: firstNameController,
               decoration: const InputDecoration(
@@ -156,8 +172,6 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Input Nama Belakang
             TextField(
               controller: lastNameController,
               decoration: const InputDecoration(
@@ -166,8 +180,6 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Input Email
             TextField(
               controller: emailController,
               decoration: const InputDecoration(
@@ -177,8 +189,6 @@ class _ProfilePageState extends State<ProfilePage> {
               keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 16),
-
-            // Input About Me
             TextField(
               controller: aboutMeController,
               decoration: const InputDecoration(
@@ -189,9 +199,8 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             const SizedBox(height: 20),
 
-            // Menampilkan CV Saat Ini atau Pesan "CV Tidak Tersedia"
+            // CV Section
             Container(
-              width: MediaQuery.of(context).size.width,
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.black, width: 2),
@@ -201,72 +210,77 @@ class _ProfilePageState extends State<ProfilePage> {
                 children: [
                   Text(
                     cvStatus,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
+                      color: cvStatus == "Anda belum mengupload CV"
+                          ? Colors.red
+                          : Colors.black,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      if (existingCV.isNotEmpty)
-                        ElevatedButton.icon(
-                          onPressed: _launchCV,
-                          icon: const Icon(Icons.download),
-                          label: const Text("Unduh CV"),
-                        ),
                       ElevatedButton.icon(
-                        onPressed: pickCV,
-                        icon: const Icon(Icons.attach_file),
-                        label: const Text("Pilih CV Baru"),
+                        onPressed: _launchCV,
+                        icon: const Icon(Icons.download),
+                        label: const Text("Unduh CV"),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/uploadCv');
+                        },
+                        icon: const Icon(Icons.upload_file),
+                        label: const Text("Upload CV Baru"),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 18),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
-
-            // Tombol untuk memilih CV baru
-
-            // Tampilkan nama CV baru yang dipilih (jika ada)
-            if (selectedCV != null)
-              Text(
-                "CV Baru: $selectedCV",
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
 
             const SizedBox(height: 16),
 
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: dangerColor),
-                onPressed: () {
-                  Navigator.pushNamed(context, '/reserPass');
-                },
-                child: Text(
-                  "Reset Password",
-                  style: TextStyle(
-                      color: primaryColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15),
+            // Save Button
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: dangerColor),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/resetPass');
+                  },
+                  child: Text(
+                    "Reset Password",
+                    style: TextStyle(
+                        color: primaryColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15),
+                  ),
                 ),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: succesColor),
-                onPressed: saveProfile,
-                child: Text(
-                  "Simpan Perubahan",
-                  style: TextStyle(
-                      color: primaryColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: succesColor),
+                  onPressed: () {
+                    int idpelamar = user[0][0]['id_pelamar'];
+                    saveProfile(
+                      idpelamar,
+                      firstNameController.text,
+                      lastNameController.text,
+                      emailController.text,
+                      aboutMeController.text,
+                    );
+                  },
+                  child: Text(
+                    "Simpan Perubahan",
+                    style: TextStyle(
+                        color: primaryColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15),
+                  ),
                 ),
-              ),
-            ]),
+              ],
+            ),
             SizedBox(
               height: 200,
             )
