@@ -1,19 +1,92 @@
 part of '../page.dart';
 
-class detailHistoryLamaran extends StatelessWidget {
+class Detailhistorylamaran extends StatefulWidget {
   final int idLamaranPekerjaan;
 
-  const detailHistoryLamaran({super.key, required this.idLamaranPekerjaan});
+  const Detailhistorylamaran({super.key, required this.idLamaranPekerjaan});
+
+  @override
+  State<Detailhistorylamaran> createState() => _DetailhistorylamaranState();
+}
+
+class _DetailhistorylamaranState extends State<Detailhistorylamaran> {
+  var user;
+  Map<String, dynamic>? selectedJob;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchJobDetails();
+    initUser();
+  }
+
+  Future<void> initUser() async {
+    var response = await meAPI().getUserProfile();
+    try {
+      if (response['status'] == true && response['data'] != null) {
+        setState(() {
+          user = response['data'];
+          isLoading = false;
+        });
+      } else {
+        if (!mounted) return;
+        isLoading = false;
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Anda belum login ')));
+        Navigator.pushNamed(context, '/login');
+        print("Failed to retrieve user data: ${response['message']}");
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Anda belum login ')));
+      Navigator.pushNamed(context, '/login');
+      print("Failed to retrieve user data: ${response['message']}");
+    } finally {
+      if (!mounted) return;
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _fetchJobDetails() async {
+    try {
+      List<Map<String, dynamic>> jobDetails = await MelamarPekerjaanapi()
+          .getDetailPostinganByIdPostingan(widget.idLamaranPekerjaan);
+      if (jobDetails.isNotEmpty) {
+        setState(() {
+          selectedJob = jobDetails.first;
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print("Error loading job details: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final selectedHistory = dummyLamaranPekerjaan.firstWhere(
-      (history) => history['idLamaranPekerjaan'] == idLamaranPekerjaan,
-      orElse: () => {'idLamaranPekerjaan': 0},
-    );
+    if (isLoading) {
+      return Scaffold(
+        backgroundColor: primaryColor,
+        body: Center(
+          child: CircularProgressIndicator(
+            color: thirdColor,
+          ),
+        ),
+      );
+    }
 
-    // Handle the case where the job is not found
-    if (selectedHistory['idLamaranPekerjaan'] == 0) {
+    if (selectedJob == null) {
       return Scaffold(
         appBar: AppBar(
           title: Text("Detail Riwayat Lamaran"),
@@ -27,27 +100,19 @@ class detailHistoryLamaran extends StatelessWidget {
     Color statusColor;
     String statusText;
 
-    // Determine the job status and corresponding color
-    if (selectedHistory['status'] == 'diterima') {
-      statusColor = Colors.green; // Green for 'available'
+    if (selectedJob!['status_lamaran'] == 'diterima') {
+      statusColor = Colors.green;
       statusText = "diterima";
-    } else if (selectedHistory['status'] == 'ditolak') {
-      statusColor = Colors.red; // Red for 'closed'
+    } else if (selectedJob!['status_lamaran'] == 'ditolak') {
+      statusColor = Colors.red;
       statusText = "ditolak";
-    } else if (selectedHistory['status'] == 'diproses') {
-      statusColor = Colors.grey; // Red for 'closed'
+    } else if (selectedJob!['status_lamaran'] == 'diproses') {
+      statusColor = Colors.grey;
       statusText = "diproses";
     } else {
-      statusColor = Colors.black; // Red for 'closed'
+      statusColor = Colors.black;
       statusText = "null";
     }
-
-    // Sample user data (you can replace this with actual user data)
-    final userData = {
-      'first_name': 'John',
-      'last_name': 'Doe',
-      'img': 'assets/img/dapa.png'
-    };
 
     return Scaffold(
       backgroundColor: primaryColor,
@@ -58,12 +123,13 @@ class detailHistoryLamaran extends StatelessWidget {
         bottom: true,
         child: ListView(
           padding: EdgeInsets.symmetric(horizontal: 16),
-          //crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 30),
             Align(
               child: Text(
-                selectedHistory['createdAt'].toString(),
+                DateFormat('dd MMMM yyyy').format(
+                    DateTime.parse(selectedJob!['createdAt'].toString())
+                        .toLocal()),
                 style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.bold,
@@ -74,72 +140,83 @@ class detailHistoryLamaran extends StatelessWidget {
             Align(
               child: Column(
                 children: [
-                  Text(
-                    "id postingan pekerjaan: ${selectedHistory['idPostPekerjaan']}",
-                    style: TextStyle(fontSize: 20),
-                  ),
-                  SizedBox(height: 10),
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
                       color: statusColor,
-                      borderRadius:
-                          BorderRadius.circular(10), // Border radius 10
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
                       "Status: $statusText",
-                      style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white), // Warna teks putih
+                      style: TextStyle(fontSize: 16, color: Colors.white),
                     ),
                   ),
                 ],
               ),
             ),
             SizedBox(height: 80),
+            Align(
+              child: Column(
+                children: [
+                  Text(
+                    selectedJob!['nama_perusahaan'],
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    selectedJob!['posisi'],
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 20),
             Center(
               child: Column(
-                mainAxisSize: MainAxisSize
-                    .min, // Use min to prevent it from taking extra space
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   CircleAvatar(
                     radius: 40,
-                    backgroundColor: Colors.green,
-                    backgroundImage: AssetImage(
-                      userData['img'] ??
-                          'assets/img/default.png', // Default image if the path is null
-                    ),
-                    child: userData['img'] == null
+                    backgroundColor: Colors.white,
+                    backgroundImage: user?[0][0]['profile_pict'] != null &&
+                            user[0][0]['profile_pict'].isNotEmpty
+                        ? NetworkImage(user[0][0]['profile_pict'])
+                        : null,
+                    child: (user?[0][0]['profile_pict'] == null ||
+                            user[0][0]['profile_pict'].isEmpty)
                         ? Icon(
                             Icons.person,
                             size: 40,
-                            color: Colors.grey,
+                            color: Colors.black,
                           )
-                        : null, // Show icon if there is no image
+                        : null,
                   ),
-
-                  SizedBox(
-                      height: 10), // Use height for spacing instead of width
+                  SizedBox(height: 10),
                   Container(
-                    width: 300, // Set your desired width here
+                    width: 300,
                     child: TextField(
                       controller: TextEditingController(
-                          text:
-                              userData['first_name'] ?? 'Nama tidak tersedia'),
-                      readOnly: true, // Makes the field non-editable
+                          text: user?[0][0]['first_name'].toString()),
+                      readOnly: true,
                       decoration: InputDecoration(
                         labelText: 'Nama Depan',
                       ),
                     ),
                   ),
-                  SizedBox(height: 10), // Space between text fields
-                  // Non-editable TextField for last name
+                  SizedBox(height: 10),
                   Container(
-                    width: 300, // Set your desired width here
+                    width: 300,
                     child: TextField(
                       controller: TextEditingController(
-                          text: userData['last_name'] ?? ''),
-                      readOnly: true, // Makes the field non-editable
+                          text: user?[0][0]['last_name'].toString()),
+                      readOnly: true,
                       decoration: InputDecoration(
                         labelText: 'Nama Belakang',
                       ),
@@ -148,6 +225,7 @@ class detailHistoryLamaran extends StatelessWidget {
                 ],
               ),
             ),
+            SizedBox(height: 20),
             Align(
                 alignment: Alignment.center,
                 child: Text(
@@ -159,7 +237,6 @@ class detailHistoryLamaran extends StatelessWidget {
                     fontWeight: FontWeight.w400,
                   ),
                 )),
-            SizedBox(height: 80),
           ],
         ),
       ),

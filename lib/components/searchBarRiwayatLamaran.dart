@@ -73,13 +73,13 @@ class _searchBarRiwayatLamaran extends State<searchBarRiwayatLamaran> {
   Color _getStatusColor(String status) {
     switch (status) {
       case 'diproses':
-        return Colors.grey; // Background abu-abu
+        return Colors.grey;
       case 'diterima':
-        return Colors.green; // Background hijau
+        return Colors.green;
       case 'ditolak':
-        return Colors.red; // Background merah
+        return Colors.red;
       default:
-        return Colors.black; // Warna default jika status tidak dikenal
+        return Colors.black;
     }
   }
 
@@ -99,7 +99,7 @@ class _searchBarRiwayatLamaran extends State<searchBarRiwayatLamaran> {
             onChanged: (value) {
               setState(() {
                 query = value;
-                results = cariPekerjaan(query); // Update search results
+                results = cariPekerjaan(query);
               });
             },
             decoration: InputDecoration(
@@ -116,9 +116,7 @@ class _searchBarRiwayatLamaran extends State<searchBarRiwayatLamaran> {
               ),
             ),
           ),
-          SizedBox(height: 10), // Space between search bar and results
-
-          // Cek apakah hasil pencarian kosong
+          SizedBox(height: 10),
           results.isEmpty
               ? Container(
                   child: Column(
@@ -133,7 +131,7 @@ class _searchBarRiwayatLamaran extends State<searchBarRiwayatLamaran> {
                           fontSize: 25,
                           fontWeight: FontWeight.w500,
                         ),
-                      )) // Tampilkan pesan jika kosong
+                      ))
                     ],
                   ),
                 )
@@ -145,22 +143,18 @@ class _searchBarRiwayatLamaran extends State<searchBarRiwayatLamaran> {
                     itemCount: results.length,
                     itemBuilder: (context, index) {
                       return Container(
-                        margin: EdgeInsets.symmetric(
-                            vertical: 5), // Space between items
+                        margin: EdgeInsets.symmetric(vertical: 5),
                         decoration: BoxDecoration(
-                          border: Border.all(
-                              color: Colors.grey), // Color of the border
-                          borderRadius:
-                              BorderRadius.circular(10), // Rounded corners
-                          color: Colors.white, // Background color
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.white,
                         ),
                         child: InkWell(
                           onTap: () {
-                            // Navigate to the detail page with the job ID
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => detailHistoryLamaran(
+                                builder: (context) => Detailhistorylamaran(
                                     idLamaranPekerjaan:
                                         results[index].idLamaranpPekerjaan),
                               ),

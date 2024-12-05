@@ -161,8 +161,8 @@ class _LamarPekerjaanState extends State<LamarPekerjaan> {
     });
 
     try {
-      bool status =
-          await LamarPekerjaanapi().lamarPekerjaan(idPostPekerjaan, idpelamar);
+      bool status = await MelamarPekerjaanapi()
+          .lamarPekerjaan(idPostPekerjaan, idpelamar);
 
       if (status) {
         _showJobApplicationNotification(selectedJob!['posisi']);

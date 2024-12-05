@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:rekanpabrik/api/lamar_pekerjaanAPI.dart';
 import 'package:rekanpabrik/api/loginAPI.dart';
 import 'package:rekanpabrik/api/meAPI.dart';
+import 'package:rekanpabrik/api/melamar_pekerjaanAPI.dart';
 import 'package:rekanpabrik/api/pelamarAPI.dart';
 import 'package:rekanpabrik/api/perusahaanAPI.dart';
 import 'package:rekanpabrik/api/posting_pekerjaan_API.dart';
@@ -41,7 +41,6 @@ import 'package:rekanpabrik/shared/shared.dart';
 // UTILS
 import 'package:rekanpabrik/utils/dummyMelamarPekerjaan.dart';
 import 'package:rekanpabrik/utils/dummyPerusahaan.dart';
-import 'package:rekanpabrik/utils/dummyPostinganPekerjaan.dart';
 import 'package:rekanpabrik/utils/formattedDate.dart';
 
 // PAGES
