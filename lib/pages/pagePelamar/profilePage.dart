@@ -158,6 +158,33 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        backgroundColor: Colors.transparent,
+        scrolledUnderElevation: 0,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(color: Colors.transparent),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.support_agent, // Ikon customer service
+              color: thirdColor,
+              size: 50,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const Pengaduan(),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
       backgroundColor: primaryColor,
       body: SafeArea(
         bottom: true,

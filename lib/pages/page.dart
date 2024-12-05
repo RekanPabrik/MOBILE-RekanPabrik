@@ -19,6 +19,7 @@ import 'package:rekanpabrik/pages/auth/lupa_password.dart';
 import 'package:rekanpabrik/pages/pagePelamar/change_profile_page_pelamar.dart';
 import 'package:rekanpabrik/pages/pagePelamar/resetPassPelamar.dart';
 import 'package:rekanpabrik/pages/pagePelamar/upload_cv.dart';
+import 'package:rekanpabrik/pages/pengaduan/pengaduan.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 // COMPONENTS
