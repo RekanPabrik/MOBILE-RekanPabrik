@@ -12,7 +12,6 @@ class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController lastNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController aboutMeController = TextEditingController();
-  final ImagePicker _picker = ImagePicker();
 
   String defaultFotoIMG = 'assets/img/defaultPict.png';
   String cvStatus = '';
@@ -96,6 +95,18 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> saveProfile(int idPelamar, String firstname, String lastname,
       String email, String aboutme) async {
+    if (firstname.isEmpty ||
+        lastname.isEmpty ||
+        email.isEmpty ||
+        aboutme.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text("Semua kolom harus diisi!"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
     try {
       bool status = await Pelamarapi().updateDataPelamar(
           idpelamar: idPelamar,
@@ -144,7 +155,9 @@ class _ProfilePageState extends State<ProfilePage> {
     if (isLoading) {
       return Scaffold(
         body: Center(
-          child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(
+            color: thirdColor,
+          ),
         ),
       );
     }

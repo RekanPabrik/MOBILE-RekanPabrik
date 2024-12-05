@@ -48,9 +48,13 @@ class _ProfilehrdState extends State<Profilehrd> {
         user = response['data'];
         namaPerusahaanController.text =
             user[0][0]['nama_perusahaan'].toString();
-        alamatPerusahaanController.text = user[0][0]['alamat'].toString();
+        if (user[0][0]['alamat'] != null && user[0][0]['alamat'].isNotEmpty) {
+          alamatPerusahaanController.text = user[0][0]['alamat'].toString();
+        }
         emailController.text = user[0][0]['email'].toString();
-        tentangPerusahaanController.text = user[0][0]['about_me'].toString();
+        if (user[0][0]['about_me'] != null) {
+          tentangPerusahaanController.text = user[0][0]['about_me'].toString();
+        }
         isLoading = false;
       });
     } else {
@@ -108,20 +112,42 @@ class _ProfilehrdState extends State<Profilehrd> {
     );
   }
 
-  Future<void> _updateProfileData() async {
-    final success = await perusahaanapi.updateProfileData(
-        idperusahaan: user[0][0]['id_perusahaan'],
-        email: emailController.text,
-        namaPerusahaan: namaPerusahaanController.text,
-        tentangPerusahaan: tentangPerusahaanController.text,
-        alamatPerusahaan: alamatPerusahaanController.text);
+  Future<void> _updateProfileData(String email, String namaPerusahaan,
+      String tentangPerusahaan, String alamatPerusahaan) async {
+    if (email.isEmpty ||
+        namaPerusahaan.isEmpty ||
+        tentangPerusahaan.isEmpty ||
+        alamatPerusahaan.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text("Semua kolom harus diisi!"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    try {
+      final success = await perusahaanapi.updateProfileData(
+          idperusahaan: user[0][0]['id_perusahaan'],
+          email: email,
+          namaPerusahaan: namaPerusahaan,
+          tentangPerusahaan: tentangPerusahaan,
+          alamatPerusahaan: alamatPerusahaan);
 
-    if (success) {
-      showProfileUpdatedNotification();
-      Navigator.pushNamed(context, '/pageHRD');
-    } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Gagal memperbarui foto ')));
+      if (success) {
+        showProfileUpdatedNotification();
+        Navigator.pushNamed(context, '/pageHRD');
+      } else {
+        SnackBar(
+          content: const Text("Gagal memperbarui profile"),
+          backgroundColor: Colors.red,
+        );
+      }
+    } catch (e) {
+      SnackBar(
+        content: const Text("Error memperbarui profile"),
+        backgroundColor: Colors.red,
+      );
     }
   }
 
@@ -158,14 +184,26 @@ class _ProfilehrdState extends State<Profilehrd> {
                 padding: EdgeInsets.symmetric(horizontal: 10),
                 children: [
                   const SizedBox(height: 30),
-                  CircleAvatar(
-                    radius: 80,
-                    backgroundImage: _imageFile == null
-                        ? (user?[0][0]['profile_pict'] != null
+                  Container(
+                    width: 140,
+                    height: 140,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        image: (user?[0][0]['profile_pict'] != null &&
+                                user[0][0]['profile_pict'].isNotEmpty)
                             ? NetworkImage(user[0][0]['profile_pict'])
-                                as ImageProvider
-                            : AssetImage(defaultFotoIMG) as ImageProvider)
-                        : FileImage(_imageFile!),
+                            : AssetImage('assets/default_profile.png'),
+                      ),
+                    ),
+                    child: (user?[0][0]['profile_pict'] == null ||
+                            user[0][0]['profile_pict'].isEmpty)
+                        ? Icon(
+                            Icons.person,
+                            size: 80,
+                            color: Colors.grey,
+                          )
+                        : null,
                   ),
                   const SizedBox(height: 20),
                   InkWell(
@@ -249,7 +287,15 @@ class _ProfilehrdState extends State<Profilehrd> {
                           style: ElevatedButton.styleFrom(
                               backgroundColor: succesColor),
                           onPressed: () {
-                            _updateProfileData();
+                            String email = emailController.text;
+                            String namaPerusahaan =
+                                namaPerusahaanController.text;
+                            String tentangPerusahaan =
+                                tentangPerusahaanController.text;
+                            String alamatPerusahaan =
+                                alamatPerusahaanController.text;
+                            _updateProfileData(email, namaPerusahaan,
+                                tentangPerusahaan, alamatPerusahaan);
                           },
                           child: Text(
                             "Simpan Perubahan",

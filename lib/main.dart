@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:rekanpabrik/components/HRDnavbarComponent.dart';
 import 'package:rekanpabrik/components/navbar_component.dart';
 import 'package:rekanpabrik/pages/page.dart';
+import 'package:rekanpabrik/pages/wellcoming_text.dart';
 import 'package:rekanpabrik/shared/shared.dart';
 
 void main() async {
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
             selectedItemColor: Colors.black,
             unselectedItemColor: Colors.white,
           )),
-      initialRoute: '/',
+      initialRoute: '/splashScreen',
       routes: {
         '/': (context) => const WellcomePage(),
         '/login': (context) => login_page(),
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
         '/cariPabrik': (context) => CariPabrik(),
         '/pageHRD': (context) => HRDnavbarComponent(),
         '/cekPelamar': (context) => Cekpelamar(),
+        '/splashScreen': (context) => SplashScreen(),
       },
     );
   }

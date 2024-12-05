@@ -92,6 +92,7 @@ class _LupaPasswordState extends State<LupaPassword> {
           decoration: BoxDecoration(color: thirdColor),
         ),
       ),
+      backgroundColor: primaryColor,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
