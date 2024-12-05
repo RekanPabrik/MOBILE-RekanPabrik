@@ -17,7 +17,6 @@ class _ProfilePageState extends State<ProfilePage> {
   String defaultFotoIMG = 'assets/img/defaultPict.png';
   String cvStatus = '';
   Uri? _cvURL;
-  File? _imageFile;
   var user;
   bool isLoading = true;
 
@@ -40,8 +39,11 @@ class _ProfilePageState extends State<ProfilePage> {
           user = response['data'];
           firstNameController.text = user[0][0]['first_name'].toString();
           lastNameController.text = user[0][0]['last_name'].toString();
+          if (user[0][0]['about_me'] != null &&
+              user[0][0]['about_me'].isNotEmpty) {
+            aboutMeController.text = user[0][0]['about_me'];
+          }
           emailController.text = user[0][0]['email'].toString();
-          aboutMeController.text = user[0][0]['about_me'].toString();
           _cvURL = Uri.parse(user[0][0]['curriculum_vitae'] ?? "");
           cvStatus = _cvURL == null || _cvURL.toString().isEmpty
               ? "Anda belum mengupload CV"
@@ -61,16 +63,6 @@ class _ProfilePageState extends State<ProfilePage> {
     } finally {
       setState(() {
         isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      setState(() {
-        _imageFile = File(pickedFile.path);
       });
     }
   }
@@ -194,13 +186,21 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 30),
             CircleAvatar(
               radius: 80,
-              backgroundImage: _imageFile == null
-                  ? (user?[0][0]['profile_pict'] != null
-                      ? NetworkImage(user[0][0]['profile_pict'])
-                          as ImageProvider
-                      : AssetImage(defaultFotoIMG) as ImageProvider)
-                  : FileImage(_imageFile!),
+              backgroundColor: Colors.grey[200],
+              backgroundImage: (user?[0][0]['profile_pict'] != null &&
+                      user[0][0]['profile_pict'].isNotEmpty)
+                  ? NetworkImage(user[0][0]['profile_pict'])
+                  : null,
+              child: (user?[0][0]['profile_pict'] == null ||
+                      user[0][0]['profile_pict'].isEmpty)
+                  ? Icon(
+                      Icons.person,
+                      size: 80,
+                      color: Colors.grey,
+                    )
+                  : null,
             ),
+
             const SizedBox(height: 20),
             InkWell(
               onTap: () {

@@ -12,12 +12,69 @@ class LamarPekerjaan extends StatefulWidget {
 class _LamarPekerjaanState extends State<LamarPekerjaan> {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
+  bool isLoading = true;
+  var user;
+  Map<String, dynamic>? selectedJob;
 
   @override
   void initState() {
     super.initState();
+    initUser();
+    _fetchJobDetails();
     _initializeNotifications();
     _requestNotificationPermission();
+  }
+
+  Future<void> initUser() async {
+    var response = await meAPI().getUserProfile();
+    try {
+      if (response['status'] == true && response['data'] != null) {
+        setState(() {
+          user = response['data'];
+          isLoading = false;
+        });
+      } else {
+        if (!mounted) return;
+        isLoading = false;
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Anda belum login ')));
+        Navigator.pushNamed(context, '/login');
+        print("Failed to retrieve user data: ${response['message']}");
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Anda belum login ')));
+      Navigator.pushNamed(context, '/login');
+      print("Failed to retrieve user data: ${response['message']}");
+    } finally {
+      if (!mounted) return;
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _fetchJobDetails() async {
+    try {
+      List<Map<String, dynamic>> jobDetails =
+          await Postingpekerjaanapi().detailsJob(widget.jobId);
+      if (jobDetails.isNotEmpty) {
+        setState(() {
+          selectedJob = jobDetails.first;
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print("Error loading job details: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   void _initializeNotifications() async {
@@ -64,20 +121,97 @@ class _LamarPekerjaanState extends State<LamarPekerjaan> {
     );
   }
 
-
-  
-  @override
-  Widget build(BuildContext context) {
-    final selectedJob = dummyPostPekerjaan.firstWhere(
-      (job) => job['id_post_pekerjaan'] == widget.jobId,
-      orElse: () => {'id_post_pekerjaan': 0},
+  Future<void> lamarPekerjaan(int idPostPekerjaan, int idpelamar) async {
+    bool? confirmSubmit = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Konfirmasi Pengajuan Lamaran'),
+          content: Text(
+              'Apakah Anda yakin ingin mengajukan lamaran untuk pekerjaan ini?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Tidak'),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+            ),
+            ElevatedButton(
+              child: Text(
+                'Ya, Ajukan',
+                style:
+                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: thirdColor,
+              ),
+            ),
+          ],
+        );
+      },
     );
 
-    // Handle the case where the job is not found
-    if (selectedJob['id_post_pekerjaan'] == 0) {
+    if (confirmSubmit != true) return;
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      bool status =
+          await LamarPekerjaanapi().lamarPekerjaan(idPostPekerjaan, idpelamar);
+
+      if (status) {
+        _showJobApplicationNotification(selectedJob!['posisi']);
+        Navigator.pushNamed(context, '/pagePelamar');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Gagal mengirim lamaran, coba lagi"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error saat mengirim lamaran"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading) {
+      return Scaffold(
+        backgroundColor: primaryColor,
+        body: Center(
+          child: CircularProgressIndicator(
+            color: thirdColor,
+          ),
+        ),
+      );
+    }
+
+    if (selectedJob == null) {
       return Scaffold(
         appBar: AppBar(
-          title: Text("Detail Pekerjaan"),
+          title: const Text(
+            "Lamar Pekerjaan",
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+          flexibleSpace: Container(
+            decoration: BoxDecoration(color: thirdColor),
+          ),
         ),
         body: Center(
           child: Text("Pekerjaan tidak ditemukan."),
@@ -89,25 +223,24 @@ class _LamarPekerjaanState extends State<LamarPekerjaan> {
     String statusText;
 
     // Determine the job status and corresponding color
-    if (selectedJob['status'] == 'tersedia') {
+    if (selectedJob!['status'] == 'terbuka') {
       statusColor = Colors.green; // Green for 'available'
-      statusText = "Tersedia";
+      statusText = "terbuka";
     } else {
       statusColor = Colors.red; // Red for 'closed'
-      statusText = "Berakhir";
+      statusText = "ditutup";
     }
-
-    // Sample user data (you can replace this with actual user data)
-    final userData = {
-      'first_name': 'John',
-      'last_name': 'Doe',
-      'img': 'assets/img/dapa.png'
-    };
 
     return Scaffold(
       backgroundColor: primaryColor,
       appBar: AppBar(
-        title: Text("Lamar Pekerjaan"),
+        title: const Text(
+          "Lamar Pekerjaan",
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(color: thirdColor),
+        ),
       ),
       body: SafeArea(
         bottom: true,
@@ -118,7 +251,7 @@ class _LamarPekerjaanState extends State<LamarPekerjaan> {
             SizedBox(height: 30),
             Align(
               child: Text(
-                selectedJob['posisi'],
+                selectedJob!['posisi'],
                 style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.bold,
@@ -130,7 +263,7 @@ class _LamarPekerjaanState extends State<LamarPekerjaan> {
               child: Column(
                 children: [
                   Text(
-                    "Lokasi: ${selectedJob['lokasi']}",
+                    "Lokasi: ${selectedJob!['lokasi']}",
                     style: TextStyle(fontSize: 20),
                   ),
                   SizedBox(height: 10),
@@ -160,7 +293,7 @@ class _LamarPekerjaanState extends State<LamarPekerjaan> {
             ),
             SizedBox(height: 10),
             Text(
-              selectedJob['job_details'] ?? "Tidak ada deskripsi pekerjaan.",
+              selectedJob!['job_details'] ?? "Tidak ada deskripsi pekerjaan.",
               style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 20),
@@ -170,7 +303,7 @@ class _LamarPekerjaanState extends State<LamarPekerjaan> {
             ),
             SizedBox(height: 10),
             Text(
-              selectedJob['requirements'] ?? "Tidak ada persyaratan.",
+              selectedJob!['requirements'] ?? "Tidak ada persyaratan.",
               style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 50),
@@ -202,18 +335,19 @@ class _LamarPekerjaanState extends State<LamarPekerjaan> {
                 children: [
                   CircleAvatar(
                     radius: 40,
-                    backgroundColor: Colors.green,
-                    backgroundImage: AssetImage(
-                      userData['img'] ??
-                          'assets/img/default.png', // Default image if the path is null
-                    ),
-                    child: userData['img'] == null
+                    backgroundColor: Colors.white,
+                    backgroundImage: user?[0][0]['profile_pict'] != null &&
+                            user[0][0]['profile_pict'].isNotEmpty
+                        ? NetworkImage(user[0][0]['profile_pict'])
+                        : null,
+                    child: (user?[0][0]['profile_pict'] == null ||
+                            user[0][0]['profile_pict'].isEmpty)
                         ? Icon(
                             Icons.person,
                             size: 40,
-                            color: Colors.grey,
+                            color: Colors.black,
                           )
-                        : null, // Show icon if there is no image
+                        : null,
                   ),
 
                   SizedBox(
@@ -222,8 +356,8 @@ class _LamarPekerjaanState extends State<LamarPekerjaan> {
                     width: 300, // Set your desired width here
                     child: TextField(
                       controller: TextEditingController(
-                          text:
-                              userData['first_name'] ?? 'Nama tidak tersedia'),
+                          text: user?[0][0]['first_name'] ??
+                              'Nama tidak tersedia'),
                       readOnly: true, // Makes the field non-editable
                       decoration: InputDecoration(
                         labelText: 'Nama Depan',
@@ -236,17 +370,37 @@ class _LamarPekerjaanState extends State<LamarPekerjaan> {
                     width: 300, // Set your desired width here
                     child: TextField(
                       controller: TextEditingController(
-                          text: userData['last_name'] ?? ''),
+                          text: user?[0][0]['last_name'] ?? ''),
                       readOnly: true, // Makes the field non-editable
                       decoration: InputDecoration(
                         labelText: 'Nama Belakang',
                       ),
                     ),
                   ),
+                  SizedBox(height: 20),
+                  if (user?[0][0]['curriculum_vitae'] != null &&
+                      user[0][0]['curriculum_vitae'].isNotEmpty)
+                    Text(
+                      "Anda sudah mengupload CV",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontStyle: FontStyle.italic,
+                        color: Colors.green, // Optional: Indicates success
+                      ),
+                    )
+                  else
+                    Text(
+                      "Harap lengkapi data diri Anda",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontStyle: FontStyle.italic,
+                        color: Colors.red, // Optional: Indicates an issue
+                      ),
+                    ),
                 ],
               ),
             ),
-            SizedBox(height: 80),
+            SizedBox(height: 60),
             Column(
               children: [
                 SizedBox(height: 20),
@@ -260,27 +414,32 @@ class _LamarPekerjaanState extends State<LamarPekerjaan> {
                 ),
                 SizedBox(height: 20),
                 Align(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      _showJobApplicationNotification(selectedJob['posisi']);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Lamaran Anda telah diajukan!')),
-                      );
-                      Navigator.pushNamed(context, '/pagePelamar');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: thirdColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    ),
-                    child: Text(
-                      'Ajukan Lamaran',
-                      style: TextStyle(fontSize: 16, color: Colors.white),
-                    ),
-                  ),
+                  child: (user?[0][0]['profile_pict'] != null &&
+                          user[0][0]['profile_pict'].isNotEmpty &&
+                          user[0][0]['curriculum_vitae'] != null &&
+                          user[0][0]['curriculum_vitae'].isNotEmpty &&
+                          user[0][0]['about_me'] != null &&
+                          user[0][0]['about_me'].isNotEmpty)
+                      ? ElevatedButton(
+                          onPressed: () {
+                            int idpelamar = user[0][0]['id_pelamar'];
+                            int idpostpekerjaan = widget.jobId;
+                            lamarPekerjaan(idpostpekerjaan, idpelamar);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: thirdColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 10),
+                          ),
+                          child: Text(
+                            'Ajukan Lamaran',
+                            style: TextStyle(fontSize: 16, color: Colors.white),
+                          ),
+                        )
+                      : null,
                 ),
               ],
             ),

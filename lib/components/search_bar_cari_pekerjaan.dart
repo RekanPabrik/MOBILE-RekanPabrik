@@ -18,7 +18,6 @@ class _searchBarCariPekerjaan extends State<searchBarCariPekerjaan> {
   List<PostingPekerjaan> allresults = [];
   dynamic user;
   bool _isLoading = true;
-  String _errorMessage = '';
 
   @override
   void initState() {
@@ -41,15 +40,25 @@ class _searchBarCariPekerjaan extends State<searchBarCariPekerjaan> {
         if (!mounted) return;
         setState(() {
           _isLoading = false;
-          _errorMessage = 'Anda Tidak Login';
         });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Harap Login Kembali"),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } catch (e) {
       if (!mounted) return;
       setState(() {
         _isLoading = false;
-        _errorMessage = 'Terjadi kesalahan: ${e.toString()}';
       });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Terjadi Error"),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -69,7 +78,6 @@ class _searchBarCariPekerjaan extends State<searchBarCariPekerjaan> {
       if (!mounted) return;
       setState(() {
         _isLoading = false;
-        _errorMessage = 'Gagal memuat data pekerjaan: $e';
       });
     }
   }
@@ -153,7 +161,21 @@ class _searchBarCariPekerjaan extends State<searchBarCariPekerjaan> {
                           },
                           child: ListTile(
                             title: Text(results[index].posisi),
-                            subtitle: Text(results[index].lokasi),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(results[index].lokasi),
+                                SizedBox(
+                                    height:
+                                        4), // Optional: Spacing between location and company name
+                                Text(
+                                  results[index].namaPerusahaan,
+                                  style: TextStyle(
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.grey),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       );
@@ -172,7 +194,8 @@ class _searchBarCariPekerjaan extends State<searchBarCariPekerjaan> {
 
     return allresults.where((job) {
       return job.posisi.toLowerCase().contains(query.toLowerCase()) ||
-          job.lokasi.toLowerCase().contains(query.toLowerCase());
+          job.lokasi.toLowerCase().contains(query.toLowerCase()) ||
+          job.namaPerusahaan.toLowerCase().contains(query.toLowerCase());
     }).toList();
   }
 }

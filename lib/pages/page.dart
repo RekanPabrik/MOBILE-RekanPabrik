@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:rekanpabrik/api/lamar_pekerjaanAPI.dart';
 import 'package:rekanpabrik/api/loginAPI.dart';
 import 'package:rekanpabrik/api/meAPI.dart';
 import 'package:rekanpabrik/api/pelamarAPI.dart';
