@@ -163,4 +163,24 @@ class PerusahaanAPI {
       throw Exception('Gagal mengambil data postingan pekerjaan');
     }
   }
+
+  Future<bool> createAccount(
+      String email, String password, String namaPerusahaan) async {
+    var url = Uri.parse('$apiUrl/auth/registerPerusahaan');
+    final response = await http.post(url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+          'namaPerusahaan': namaPerusahaan,
+        }));
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

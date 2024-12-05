@@ -7,6 +7,8 @@ class register_pelamar extends StatefulWidget {
 
 class _registerPelamarState extends State<register_pelamar> {
   // VARIABLE
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
   final TextEditingController EmailController = TextEditingController();
   String emailErrorMessage = '';
   bool mailIsEror = false;
@@ -31,6 +33,12 @@ class _registerPelamarState extends State<register_pelamar> {
   String generalMassageEror = '';
   bool generalEror = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _initializeNotifications();
+  }
+
   // FUNGSI
   bool isEmailValid(String email) {
     return email.contains('@');
@@ -42,6 +50,116 @@ class _registerPelamarState extends State<register_pelamar> {
 
   bool checkConfirmPass(String pass, String confirmPass) {
     return (pass == confirmPass);
+  }
+
+  Future<void> createAccount(String Fname, String Lname, String email,
+      String password, String confirmPass) async {
+    setState(() {
+      // Reset semua error messages
+      FNameErrorMessage = '';
+      LNameErrorMessage = '';
+      emailErrorMessage = '';
+      passErrorMessage = '';
+      confirmPassErrorMessage = '';
+
+      // Reset status error
+      FNameIsEror = false;
+      LNameIsEror = false;
+      mailIsEror = false;
+      passIsEror = false;
+      confirmPassIsEror = false;
+
+      // Cek jika ada field yang kosong dan set error message yang sesuai
+      if (Fname.isEmpty) {
+        FNameErrorMessage = "Nama depan tidak boleh kosong";
+        FNameIsEror = true;
+      }
+      if (Lname.isEmpty) {
+        LNameErrorMessage = "Nama belakang tidak boleh kosong";
+        LNameIsEror = true;
+      }
+      if (email.isEmpty) {
+        emailErrorMessage = "Email tidak boleh kosong";
+        mailIsEror = true;
+      }
+      if (password.isEmpty) {
+        passErrorMessage = "Password tidak boleh kosong";
+        passIsEror = true;
+      }
+      if (confirmPass.isEmpty) {
+        confirmPassErrorMessage = "Konfirmasi password tidak boleh kosong";
+        confirmPassIsEror = true;
+      } else if (confirmPass != password) {
+        confirmPassErrorMessage = "konfirmasi password tidak sesuai.";
+        confirmPassIsEror = true;
+      }
+    });
+    if (!FNameIsEror &&
+        !LNameIsEror &&
+        !mailIsEror &&
+        !passIsEror &&
+        !confirmPassIsEror) {
+      try {
+        bool status =
+            await Pelamarapi().createAccount(Fname, Lname, email, password);
+
+        if (status) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => login_page()),
+            (route) => false,
+          );
+          showProfileUpdatedNotification();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Registration failed!"),
+            ),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Error ketika membuat akun!"),
+          ),
+        );
+      }
+    }
+  }
+
+  void _initializeNotifications() async {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    const InitializationSettings initializationSettings =
+        InitializationSettings(
+      android: initializationSettingsAndroid,
+    );
+
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+  void showProfileUpdatedNotification() async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      'account_creation_channel',
+      'Account Creation Notifications',
+      channelDescription: 'Notifications for successful account creation',
+      importance: Importance.high,
+      priority: Priority.high,
+      ticker: 'ticker',
+    );
+
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+    );
+
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      'Account Created Successfully',
+      'Welcome to our platform! Your account has been created. Start exploring opportunities now!',
+      platformChannelSpecifics,
+    );
   }
 
   @override
@@ -95,11 +213,11 @@ class _registerPelamarState extends State<register_pelamar> {
               alignment: Alignment.centerLeft,
               child: ElevatedButton(
                 onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => register_hrd()),
-                    );
-                  },
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => register_hrd()),
+                  );
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: thirdColor, // Warna tombol
                   padding: EdgeInsets.symmetric(
@@ -219,50 +337,13 @@ class _registerPelamarState extends State<register_pelamar> {
               alignment: Alignment.center,
               child: ElevatedButton(
                 onPressed: () {
-                  setState(() {
-                    String Fname = FNameController.text;
-                    String Lname = LNameController.text;
-                    String email = EmailController.text;
-                    String pass = passwordController.text;
-                    String confirmPass = confirmPasswordController.text;
+                  String Fname = FNameController.text;
+                  String Lname = LNameController.text;
+                  String email = EmailController.text;
+                  String pass = passwordController.text;
+                  String confirmPass = confirmPasswordController.text;
 
-                    // Reset semua error messages
-                    FNameErrorMessage = '';
-                    LNameErrorMessage = '';
-                    emailErrorMessage = '';
-                    passErrorMessage = '';
-                    confirmPassErrorMessage = '';
-
-                    // Reset status error
-                    FNameIsEror = false;
-                    LNameIsEror = false;
-                    mailIsEror = false;
-                    passIsEror = false;
-                    confirmPassIsEror = false;
-
-                    // Cek jika ada field yang kosong dan set error message yang sesuai
-                    if (Fname.isEmpty) {
-                      FNameErrorMessage = "Nama depan tidak boleh kosong";
-                      FNameIsEror = true;
-                    }
-                    if (Lname.isEmpty) {
-                      LNameErrorMessage = "Nama belakang tidak boleh kosong";
-                      LNameIsEror = true;
-                    }
-                    if (email.isEmpty) {
-                      emailErrorMessage = "Email tidak boleh kosong";
-                      mailIsEror = true;
-                    }
-                    if (pass.isEmpty) {
-                      passErrorMessage = "Password tidak boleh kosong";
-                      passIsEror = true;
-                    }
-                    if (confirmPass.isEmpty) {
-                      confirmPassErrorMessage =
-                          "Konfirmasi password tidak boleh kosong";
-                      confirmPassIsEror = true;
-                    }
-                  });
+                  createAccount(Fname, Lname, email, pass, confirmPass);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: thirdColor, // Warna tombol
@@ -305,10 +386,10 @@ class _registerPelamarState extends State<register_pelamar> {
                     ),
                     recognizer: TapGestureRecognizer()
                       ..onTap = () {
-                        Navigator.push(
+                        Navigator.pushAndRemoveUntil(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) => WellcomePage()),
+                          MaterialPageRoute(builder: (context) => login_page()),
+                          (route) => false,
                         );
                       },
                   ),
