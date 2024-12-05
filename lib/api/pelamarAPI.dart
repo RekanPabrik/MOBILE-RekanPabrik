@@ -140,4 +140,25 @@ class Pelamarapi {
       return false;
     }
   }
+
+  Future<bool> createAccount(
+      String Fname, String Lname, String email, String password) async {
+    var url = Uri.parse('$apiUrl/auth/registerPelamar');
+    final response = await http.post(url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+          'first_name': Fname,
+          'last_name': Lname
+        }));
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

@@ -1,7 +1,35 @@
 part of 'page.dart';
 
-class WellcomePage extends StatelessWidget {
+class WellcomePage extends StatefulWidget {
   const WellcomePage({super.key});
+
+  @override
+  State<WellcomePage> createState() => _WellcomePageState();
+}
+
+class _WellcomePageState extends State<WellcomePage> {
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  @override
+  void initState() {
+    super.initState();
+    _requestNotificationPermission();
+  }
+
+  void _requestNotificationPermission() async {
+    final bool? granted = await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.requestNotificationsPermission();
+
+    if (granted != null && !granted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Izin Notifikasi ditolak!"),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
