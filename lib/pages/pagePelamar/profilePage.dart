@@ -12,12 +12,10 @@ class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController lastNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController aboutMeController = TextEditingController();
-  final ImagePicker _picker = ImagePicker();
 
   String defaultFotoIMG = 'assets/img/defaultPict.png';
   String cvStatus = '';
   Uri? _cvURL;
-  File? _imageFile;
   var user;
   bool isLoading = true;
 
@@ -40,8 +38,11 @@ class _ProfilePageState extends State<ProfilePage> {
           user = response['data'];
           firstNameController.text = user[0][0]['first_name'].toString();
           lastNameController.text = user[0][0]['last_name'].toString();
+          if (user[0][0]['about_me'] != null &&
+              user[0][0]['about_me'].isNotEmpty) {
+            aboutMeController.text = user[0][0]['about_me'];
+          }
           emailController.text = user[0][0]['email'].toString();
-          aboutMeController.text = user[0][0]['about_me'].toString();
           _cvURL = Uri.parse(user[0][0]['curriculum_vitae'] ?? "");
           cvStatus = _cvURL == null || _cvURL.toString().isEmpty
               ? "Anda belum mengupload CV"
@@ -61,16 +62,6 @@ class _ProfilePageState extends State<ProfilePage> {
     } finally {
       setState(() {
         isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      setState(() {
-        _imageFile = File(pickedFile.path);
       });
     }
   }
@@ -104,6 +95,18 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> saveProfile(int idPelamar, String firstname, String lastname,
       String email, String aboutme) async {
+    if (firstname.isEmpty ||
+        lastname.isEmpty ||
+        email.isEmpty ||
+        aboutme.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text("Semua kolom harus diisi!"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
     try {
       bool status = await Pelamarapi().updateDataPelamar(
           idpelamar: idPelamar,
@@ -152,12 +155,41 @@ class _ProfilePageState extends State<ProfilePage> {
     if (isLoading) {
       return Scaffold(
         body: Center(
-          child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(
+            color: thirdColor,
+          ),
         ),
       );
     }
 
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        backgroundColor: Colors.transparent,
+        scrolledUnderElevation: 0,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(color: Colors.transparent),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.support_agent, // Ikon customer service
+              color: thirdColor,
+              size: 50,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const Pengaduan(),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
       backgroundColor: primaryColor,
       body: SafeArea(
         bottom: true,
@@ -167,13 +199,21 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 30),
             CircleAvatar(
               radius: 80,
-              backgroundImage: _imageFile == null
-                  ? (user?[0][0]['profile_pict'] != null
-                      ? NetworkImage(user[0][0]['profile_pict'])
-                          as ImageProvider
-                      : AssetImage(defaultFotoIMG) as ImageProvider)
-                  : FileImage(_imageFile!),
+              backgroundColor: Colors.grey[200],
+              backgroundImage: (user?[0][0]['profile_pict'] != null &&
+                      user[0][0]['profile_pict'].isNotEmpty)
+                  ? NetworkImage(user[0][0]['profile_pict'])
+                  : null,
+              child: (user?[0][0]['profile_pict'] == null ||
+                      user[0][0]['profile_pict'].isEmpty)
+                  ? Icon(
+                      Icons.person,
+                      size: 80,
+                      color: Colors.grey,
+                    )
+                  : null,
             ),
+
             const SizedBox(height: 20),
             InkWell(
               onTap: () {

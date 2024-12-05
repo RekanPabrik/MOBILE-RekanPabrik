@@ -16,6 +16,7 @@ class _PostjobState extends State<Postjob> {
   final TextEditingController jobDetailsController = TextEditingController();
   final TextEditingController requirementsController = TextEditingController();
   var user;
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -32,12 +33,15 @@ class _PostjobState extends State<Postjob> {
       if (!mounted) return;
       setState(() {
         user = response['data'];
+        isLoading = false;
       });
     } else {
       if (!mounted) return;
+      setState(() {
+        isLoading = false;
+      });
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('Anda tidak login ')));
-      print("Failed to retrieve user data: ${response['message']}");
     }
   }
 
@@ -107,138 +111,240 @@ class _PostjobState extends State<Postjob> {
     }
   }
 
+  bool cekDataPerusahaan() {
+    if (user?[0][0]['about_me'] != null &&
+        user?[0][0]['profile_pict'] != null &&
+        user?[0][0]['alamat'] != null) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    bool isLengkap = cekDataPerusahaan();
+    if (isLoading) {
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(
+            color: thirdColor,
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
-      backgroundColor: primaryColor,
-      body: SafeArea(
-          bottom: true,
-          child: ListView(
-            padding: EdgeInsets.symmetric(horizontal: 10),
-            children: [
-              SizedBox(
-                height: 50,
-              ),
-              Container(
-                child: Column(
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "Post a Job",
-                        style: TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                            color: thirdColor),
+        backgroundColor: primaryColor,
+        body: SafeArea(
+            bottom: true,
+            child: isLengkap
+                ? ListView(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    children: [
+                      SizedBox(
+                        height: 50,
                       ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Container(
-                        width: 350,
-                        child: RichText(
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text:
-                                    "Find the Perfect Candidate for Your Team",
+                      Container(
+                        child: Column(
+                          children: [
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                "Post a Job",
                                 style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: thirdColor,
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.bold,
+                                    color: thirdColor),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Container(
+                                width: 350,
+                                child: RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text:
+                                            "Find the Perfect Candidate for Your Team",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: thirdColor,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            "At Rekan Pabrik, we make it easy for you to post job listings and connect with top talent in the industry. Whether you're looking to fill one role or expand your entire team, our platform gives you the tools to attract qualified candidates quickly and efficiently.",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.normal,
+                                          color: thirdColor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                              TextSpan(
-                                text:
-                                    "At Rekan Pabrik, we make it easy for you to post job listings and connect with top talent in the industry. Whether you're looking to fill one role or expand your entire team, our platform gives you the tools to attract qualified candidates quickly and efficiently.",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.normal,
-                                  color: thirdColor,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      TextField(
+                        controller: posisiController,
+                        decoration: const InputDecoration(
+                          labelText: 'Posisi',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: lokasiPekerjaanController,
+                        decoration: const InputDecoration(
+                          labelText: 'Lokasi Pekerjaan',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: jobDetailsController,
+                        maxLines: 5,
+                        decoration: const InputDecoration(
+                          labelText: 'Job Details',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: requirementsController,
+                        maxLines: 5,
+                        decoration: const InputDecoration(
+                          labelText: 'Requirements',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      Align(
+                        alignment: Alignment.center,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            int idPerusahaan = user[0][0]['id_perusahaan'];
+                            String posisi = posisiController.text;
+                            String lokasi = lokasiPekerjaanController.text;
+                            String jobDetails = jobDetailsController.text;
+                            String requirements = requirementsController.text;
+
+                            postJob(idPerusahaan, posisi, lokasi, jobDetails,
+                                requirements);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: succesColor,
+                            padding: EdgeInsets.symmetric(
+                              vertical: 10,
+                              horizontal: 50,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: Text(
+                            'post job',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: primaryColor,
+                              fontFamily: 'poppins',
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 200),
+                    ],
+                  )
+                : ListView(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    children: [
+                        SizedBox(
+                          height: 50,
+                        ),
+                        Container(
+                          child: Column(
+                            children: [
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "Post a Job",
+                                  style: TextStyle(
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.bold,
+                                      color: thirdColor),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Container(
+                                  width: 350,
+                                  child: RichText(
+                                    text: TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text:
+                                              "Find the Perfect Candidate for Your Team",
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: thirdColor,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text:
+                                              "At Rekan Pabrik, we make it easy for you to post job listings and connect with top talent in the industry. Whether you're looking to fill one role or expand your entire team, our platform gives you the tools to attract qualified candidates quickly and efficiently.",
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.normal,
+                                            color: thirdColor,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 80),
+                              Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text(
+                                      "Wahh, belum bisa posting pekerjaan nih",
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    const Text(
+                                      "Harap lengkapi data perusahaan dulu yaaa",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
                           ),
                         ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: posisiController,
-                decoration: const InputDecoration(
-                  labelText: 'Posisi',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: lokasiPekerjaanController,
-                decoration: const InputDecoration(
-                  labelText: 'Lokasi Pekerjaan',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: jobDetailsController,
-                maxLines: 5,
-                decoration: const InputDecoration(
-                  labelText: 'Job Details',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: requirementsController,
-                maxLines: 5,
-                decoration: const InputDecoration(
-                  labelText: 'Requirements',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 30),
-              Align(
-                alignment: Alignment.center,
-                child: ElevatedButton(
-                  onPressed: () {
-                    int idPerusahaan = user[0][0]['id_perusahaan'];
-                    String posisi = posisiController.text;
-                    String lokasi = lokasiPekerjaanController.text;
-                    String jobDetails = jobDetailsController.text;
-                    String requirements = requirementsController.text;
-
-                    postJob(
-                        idPerusahaan, posisi, lokasi, jobDetails, requirements);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: succesColor,
-                    padding: EdgeInsets.symmetric(
-                      vertical: 10,
-                      horizontal: 50,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: Text(
-                    'post job',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: primaryColor,
-                      fontFamily: 'poppins',
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 200),
-            ],
-          )),
-    );
+                      ])));
   }
 }

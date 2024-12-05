@@ -41,4 +41,51 @@ class MelamarPekerjaanapi {
       throw Exception("Terjadi kesalahan: $e");
     }
   }
+
+  Future<bool> lamarPekerjaan(int idPostPekerjaan, int idpelamar) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    if (token == null) {
+      return false;
+    }
+
+    var url = Uri.parse('$apiUrl/melamarPekerjaan/melamar');
+
+    final response = await http.post(url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(
+            {"idPostPekerjaan": idPostPekerjaan, "idPelamar": idpelamar}));
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getDetailPostinganByIdPostingan(
+      int idPostingan) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('auth_token');
+
+    final response = await http.get(
+      Uri.parse('$apiUrl/melamarPekerjaan/getDataPostinganBYID/$idPostingan'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var data = json.decode(response.body);
+      List<dynamic> jobs = data['data'];
+
+      return jobs.map((job) => Map<String, dynamic>.from(job)).toList();
+    } else {
+      throw Exception('Gagal mengambil data postingan pekerjaan');
+    }
+  }
 }

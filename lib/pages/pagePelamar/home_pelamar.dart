@@ -118,11 +118,19 @@ class _homePelamar extends State<home_pelamar> {
                     ),
                     CircleAvatar(
                       radius: 40,
-                      backgroundColor: Colors.green,
-                      backgroundImage: (user?[0][0]['profile_pict'] != null
+                      backgroundColor: Colors.grey[200],
+                      backgroundImage: (user?[0][0]['profile_pict'] != null &&
+                              user[0][0]['profile_pict'].isNotEmpty)
                           ? NetworkImage(user[0][0]['profile_pict'])
-                              as ImageProvider
-                          : AssetImage(defaultFotoIMG) as ImageProvider),
+                          : null,
+                      child: (user?[0][0]['profile_pict'] == null ||
+                              user[0][0]['profile_pict'].isEmpty)
+                          ? Icon(
+                              Icons.person,
+                              size: 40,
+                              color: Colors.grey,
+                            )
+                          : null,
                     ),
                   ],
                 ),
