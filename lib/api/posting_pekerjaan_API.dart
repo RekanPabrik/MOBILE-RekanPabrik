@@ -80,10 +80,9 @@ class Postingpekerjaanapi {
     }
   }
 
-  Future<bool> ubahStatusPekerjaann(int idPostPekerjaan) async {
+  Future<bool> ubahStatusPekerjaann(int idPostPekerjaan, String status) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
-    const status = "ditutup";
 
     if (token == null) {
       return false;

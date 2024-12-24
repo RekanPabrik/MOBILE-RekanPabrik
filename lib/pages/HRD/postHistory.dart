@@ -87,9 +87,9 @@ class _PosthistoryState extends State<Posthistory> {
             .compareTo(DateTime.parse(a['createdAt'])));
       } else if (selectedFilter == 'Status Tersedia') {
         resultsJob.sort((a, b) {
-          if (a['status'] == 'tersedia' && b['status'] != 'tersedia') {
+          if (a['status'] == 'tersedia' && b['status'] != 'terbuka') {
             return -1;
-          } else if (a['status'] != 'tersedia' && b['status'] == 'tersedia') {
+          } else if (a['status'] != 'tersedia' && b['status'] == 'terbuka') {
             return 1;
           } else {
             return 0;
@@ -97,9 +97,9 @@ class _PosthistoryState extends State<Posthistory> {
         });
       } else if (selectedFilter == 'Status berakhir') {
         resultsJob.sort((a, b) {
-          if (a['status'] == 'berakhir' && b['status'] != 'berakhir') {
+          if (a['status'] == 'berakhir' && b['status'] != 'ditutup') {
             return -1;
-          } else if (a['status'] != 'berakhir' && b['status'] == 'berakhir') {
+          } else if (a['status'] != 'berakhir' && b['status'] == 'ditutup') {
             return 1;
           } else {
             return 0;

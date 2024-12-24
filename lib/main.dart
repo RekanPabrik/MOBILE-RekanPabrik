@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
             selectedItemColor: Colors.black,
             unselectedItemColor: Colors.white,
           )),
-      initialRoute: '/splashScreen',
+      initialRoute: '/',
       routes: {
         '/': (context) => const WellcomePage(),
         '/login': (context) => login_page(),

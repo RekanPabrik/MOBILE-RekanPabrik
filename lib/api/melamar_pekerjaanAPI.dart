@@ -88,4 +88,26 @@ class MelamarPekerjaanapi {
       throw Exception('Gagal mengambil data postingan pekerjaan');
     }
   }
+
+  Future<bool> ubahStatusPelamar(String status, int idlamaranpekerjaan) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('auth_token');
+
+    var url =
+        Uri.parse('$apiUrl/melamarPekerjaan/updateStatus/$idlamaranpekerjaan');
+    final response = await http.patch(url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'status': status,
+        }));
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
