@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rekanpabrik/api/melamar_pekerjaanAPI.dart';
 import 'package:rekanpabrik/api/posting_pekerjaan_API.dart';
 import 'package:rekanpabrik/shared/shared.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -13,7 +14,7 @@ class Detailpelamar extends StatefulWidget {
 }
 
 class _DetailpelamarState extends State<Detailpelamar> {
-  Map<String, dynamic>? pelamar;
+  var pelamar;
   bool isLoading = true;
   final String defaultFotoIMG = 'assets/img/defaultPict.png';
 
@@ -34,6 +35,27 @@ class _DetailpelamarState extends State<Detailpelamar> {
       setState(() {
         isLoading = false;
       });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Terjadi kesalahan: $e')),
+      );
+    }
+  }
+
+  Future<void> updateStatus(String status, int idlamaranpekerjaan) async {
+    try {
+      bool result = await MelamarPekerjaanapi()
+          .ubahStatusPelamar(status, idlamaranpekerjaan);
+
+      if (result) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Lamaran $status')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Terjadi kesalahan')),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Terjadi kesalahan: $e')),
       );
@@ -135,40 +157,44 @@ class _DetailpelamarState extends State<Detailpelamar> {
                         ),
                       ),
                       const SizedBox(height: 50),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () async {
-                              bool? confirm =
-                                  await _showConfirmationDialogDiTolak(context);
-                              if (confirm ?? false) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text('Lamaran ditolak')),
-                                );
-                                Navigator.pushNamed(context, '/pageHRD');
-                              }
-                            },
-                            child: const Text('Tolak Pelamar'),
-                          ),
-                          ElevatedButton(
-                            onPressed: () async {
-                              bool? confirm =
-                                  await _showConfirmationDialogDiterima(
-                                      context);
-                              if (confirm ?? false) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text('Lamaran diterima')),
-                                );
-                                Navigator.pushNamed(context, '/pageHRD');
-                              }
-                            },
-                            child: const Text('Terima Pelamar'),
-                          ),
-                        ],
-                      )
+                      pelamar['status_lamaran'] != "diterima" &&
+                              pelamar['status_lamaran'] != "ditolak"
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    bool? confirm =
+                                        await _showConfirmationDialogDiTolak(
+                                            context);
+                                    if (confirm ?? false) {
+                                      int idlamaranpekerjaan =
+                                          pelamar?['id_lamaran_pekerjaan'];
+                                      await updateStatus(
+                                          "ditolak", idlamaranpekerjaan);
+                                      Navigator.pushNamed(context, '/pageHRD');
+                                    }
+                                  },
+                                  child: const Text('Tolak Pelamar'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    bool? confirm =
+                                        await _showConfirmationDialogDiterima(
+                                            context);
+                                    if (confirm ?? false) {
+                                      int idlamaranpekerjaan =
+                                          pelamar?['id_lamaran_pekerjaan'];
+                                      await updateStatus(
+                                          "diterima", idlamaranpekerjaan);
+                                      Navigator.pushNamed(context, '/pageHRD');
+                                    }
+                                  },
+                                  child: const Text('Terima Pelamar'),
+                                ),
+                              ],
+                            )
+                          : const SizedBox(), // Tidak menampilkan apapun jika sudah diterima/ditolak
                     ],
                   ),
                 )
