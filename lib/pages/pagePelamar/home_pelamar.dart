@@ -96,7 +96,7 @@ class _homePelamar extends State<home_pelamar> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "Welcome back!",
+                          "Welcome Back!",
                           style: TextStyle(
                             color: Colors.white,
                             fontFamily: 'poppins',
@@ -150,7 +150,7 @@ class _homePelamar extends State<home_pelamar> {
             ),
             Container(
               child: Text(
-                "Browse company profiles to find the right workplace for you. Learn about jobs, reviews, company culture, benefits and perks.",
+                "Browse company profiles to find the right workplace for you. Learn about jobs, reviews, company culture, benefits and more.",
                 style: TextStyle(
                     fontFamily: 'poppins',
                     fontSize: 15,
@@ -210,7 +210,7 @@ class _homePelamar extends State<home_pelamar> {
               height: 50,
             ),
             Containerhomepelamar(
-                textSatu: "“Hello” Better career!",
+                textSatu: "“Hello” for Better career!",
                 textDua: "Get your dream career here",
                 imgLinkk: 'assets/img/Image1.png'),
             SizedBox(
