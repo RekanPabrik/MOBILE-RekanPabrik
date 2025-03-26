@@ -235,8 +235,8 @@ class _SearchBarPelamarPekerjaanState extends State<SearchBarPelamarPekerjaan> {
     }
 
     return resultsPelamar.where((user) {
-      var posisi = user['posisi_dilamar'] ?? '';
-      return posisi.toLowerCase().contains(query.toLowerCase());
+      var nama = user['first_name'] ?? '';
+      return nama.toLowerCase().contains(query.toLowerCase());
     }).map((user) {
       return pelamarPekerjaan(
         namaPerusahaan: user['nama_perusahaan'].toString(),
