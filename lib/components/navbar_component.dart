@@ -4,12 +4,13 @@ import 'package:rekanpabrik/shared/shared.dart';
 
 class navbarComponent extends StatefulWidget {
   @override
-  _navbarComponentState createState() => _navbarComponentState();
+  _NavbarComponentState createState() => _NavbarComponentState();
 }
 
-class _navbarComponentState extends State<navbarComponent> {
+class _NavbarComponentState extends State<navbarComponent> {
   int _selectedIndex = 0;
   late List<Widget> _pages;
+
   Future<bool> _onWillPop() async {
     // Disable back button functionality
     return false;
@@ -19,13 +20,13 @@ class _navbarComponentState extends State<navbarComponent> {
   void initState() {
     super.initState();
 
-    // Accessing the newPelamar property from the widget
+    // Initialize the pages
     _pages = [
       home_pelamar(),
       Caripekerjaan(),
       savedJobs(),
       riwayatLamaran(),
-      ProfilePage(), // Pass newPelamar where needed
+      ProfilePage(),
     ];
   }
 
@@ -39,88 +40,78 @@ class _navbarComponentState extends State<navbarComponent> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: _onWillPop,
-      child: new Scaffold(
+      child: Scaffold(
         resizeToAvoidBottomInset: false,
-        body: Stack(
-          children: [
-            _buildPage(_selectedIndex), // Ini adalah halaman utama
-            Positioned(
-              left: 20.0,
-              right: 20.0,
-              bottom: 20.0,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(100),
-                child: Container(
-                  height: 90,
-                  decoration: BoxDecoration(
-                    color: primaryColor,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        spreadRadius: 3,
-                        blurRadius: 10,
-                      ),
-                    ],
-                  ),
-                  child: BottomNavigationBar(
-                    backgroundColor: secondaryCoolor,
-                    items: <BottomNavigationBarItem>[
-                      BottomNavigationBarItem(
-                        icon: _buildIcon(Icons.home, 0),
-                        label: 'Home',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: _buildIcon(Icons.search, 1),
-                        label: 'Find Job',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: _buildIcon(Icons.bookmark, 2),
-                        label: 'Saved Jobs',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: _buildIcon(Icons.history, 3),
-                        label: 'history',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: _buildIcon(Icons.person, 4),
-                        label: 'Profile',
-                      ),
-                    ],
-                    currentIndex: _selectedIndex,
-                    selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold),
-                    selectedItemColor: Colors.white,
-                    unselectedItemColor: Colors.white,
-                    onTap: _onItemTapped,
-                    elevation: 0, // Menghilangkan shadow bawaan
-                  ),
-                ),
+        body: _buildPage(_selectedIndex), // Main page
+        bottomNavigationBar: Container(
+          height: 90,
+          decoration: BoxDecoration(
+            color: primaryColor,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                spreadRadius: 3,
+                blurRadius: 10,
               ),
-            ),
-          ],
+            ],
+          ),
+          child: BottomNavigationBar(
+            backgroundColor: primaryColor,
+            items: <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: _buildIcon(Icons.home, 0),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: _buildIcon(Icons.search, 1),
+                label: 'Find Job',
+              ),
+              BottomNavigationBarItem(
+                icon: _buildIcon(Icons.bookmark, 2),
+                label: 'Saved Jobs',
+              ),
+              BottomNavigationBarItem(
+                icon: _buildIcon(Icons.history, 3),
+                label: 'History',
+              ),
+              BottomNavigationBarItem(
+                icon: _buildIcon(Icons.person, 4),
+                label: 'Profile',
+              ),
+            ],
+            currentIndex: _selectedIndex,
+            selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold),
+            selectedItemColor: Colors.white,
+            unselectedItemColor: Colors.white,
+            onTap: _onItemTapped,
+            elevation: 0, // Remove default shadow
+          ),
         ),
       ),
     );
   }
 
-// Membuat efek latar belakang lingkaran hijau saat ikon dipilih
+  // Create background circle effect when icon is selected
   Widget _buildIcon(IconData iconData, int index) {
     return Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: _selectedIndex == index
-            ? secondaryCoolor
-            : Colors.transparent, // Warna hijau saat dipilih
+            ? Colors.white
+            : Colors.transparent, // Color when selected
       ),
-      padding: EdgeInsets.all(8.0), // Membuat lingkaran lebih besar
+      padding: EdgeInsets.all(8.0), // Make circle larger
       child: Icon(
         iconData,
         size: 30,
-        color: Colors.white,
+        color: _selectedIndex == index   
+        ? thirdColor
+        : Colors.white      
       ),
     );
   }
 
   Widget _buildPage(int index) {
-    return _pages[index]; // Akses halaman sesuai dengan indeks yang benar
+    return _pages[index]; // Access the page based on the correct index
   }
 }
