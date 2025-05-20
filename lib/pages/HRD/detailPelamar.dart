@@ -5,9 +5,9 @@ import 'package:rekanpabrik/shared/shared.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Detailpelamar extends StatefulWidget {
-  final int idPelamar;
+  final int id_lamaran_perusahaan;
 
-  const Detailpelamar({super.key, required this.idPelamar});
+  const Detailpelamar({super.key, required this.id_lamaran_perusahaan});
 
   @override
   _DetailpelamarState createState() => _DetailpelamarState();
@@ -21,12 +21,13 @@ class _DetailpelamarState extends State<Detailpelamar> {
   @override
   void initState() {
     super.initState();
-    fetchDetailPelamar(widget.idPelamar);
+    fetchDetailPelamar(widget.id_lamaran_perusahaan);
   }
 
-  Future<void> fetchDetailPelamar(int idPelamar) async {
+  Future<void> fetchDetailPelamar(int idLamaranPekerjaan) async {
     try {
-      final data = await Postingpekerjaanapi().getDetailPelamar(idPelamar);
+      final data =
+          await Postingpekerjaanapi().getDetailPelamar(idLamaranPekerjaan);
       setState(() {
         pelamar = data;
         isLoading = false;

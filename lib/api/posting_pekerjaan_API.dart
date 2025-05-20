@@ -143,10 +143,10 @@ class Postingpekerjaanapi {
     }
   }
 
-  Future<Map<String, dynamic>> getDetailPelamar(int idPelamar) async {
+  Future<Map<String, dynamic>> getDetailPelamar(int idLamaranPekerjaan) async {
     try {
-      final url =
-          Uri.parse('$apiUrl/postPekerjaan/getDetailPelamar/$idPelamar');
+      final url = Uri.parse(
+          '$apiUrl/postPekerjaan/getDetailPelamar/$idLamaranPekerjaan');
 
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');

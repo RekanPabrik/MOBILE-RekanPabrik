@@ -6,6 +6,7 @@ class pelamarPekerjaan {
   String email;
   String? fotoProfil;
   String? linkCv;
+  int id_lamaran_pekerjaan;
   String statusLamaran;
   String posisiDilamar;
 
@@ -18,6 +19,7 @@ class pelamarPekerjaan {
     this.fotoProfil,
     this.linkCv,
     required this.statusLamaran,
+    required this.id_lamaran_pekerjaan,
     required this.posisiDilamar,
   });
 }
