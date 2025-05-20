@@ -61,7 +61,6 @@ class _SearchBarPelamarPekerjaanState extends State<SearchBarPelamarPekerjaan> {
       if (user is List && user.isNotEmpty && user[0][0].isNotEmpty) {
         companyId = user[0][0]['id_perusahaan'];
       }
-
       if (companyId == null) {
         setState(() {
           _isLoading = false;
@@ -71,6 +70,7 @@ class _SearchBarPelamarPekerjaanState extends State<SearchBarPelamarPekerjaan> {
       }
 
       var data = await Postingpekerjaanapi().getPelamarByCompanyId(companyId);
+      print(data);
 
       setState(() {
         _isLoading = false;
@@ -85,6 +85,7 @@ class _SearchBarPelamarPekerjaanState extends State<SearchBarPelamarPekerjaan> {
               email: user['email'].toString(),
               linkCv: user['link_cv'].toString(),
               fotoProfil: user['foto_profil'].toString(),
+              id_lamaran_pekerjaan: user['id_lamaran_pekerjaan'],
               statusLamaran: user['status_lamaran'].toString(),
               posisiDilamar: user['posisi_dilamar'].toString(),
             );
@@ -205,7 +206,8 @@ class _SearchBarPelamarPekerjaanState extends State<SearchBarPelamarPekerjaan> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) => Detailpelamar(
-                                    idPelamar: pelamar.idPelamar)),
+                                    id_lamaran_perusahaan:
+                                        pelamar.id_lamaran_pekerjaan)),
                           );
                         },
                       ),
@@ -228,6 +230,7 @@ class _SearchBarPelamarPekerjaanState extends State<SearchBarPelamarPekerjaan> {
           email: user['email'].toString(),
           linkCv: user['link_cv'].toString(),
           fotoProfil: user['foto_profil'].toString(),
+          id_lamaran_pekerjaan: user['id_lamaran_pekerjaan'],
           statusLamaran: user['status_lamaran'].toString(),
           posisiDilamar: user['posisi_dilamar'].toString(),
         );
@@ -246,6 +249,7 @@ class _SearchBarPelamarPekerjaanState extends State<SearchBarPelamarPekerjaan> {
         email: user['email'].toString(),
         linkCv: user['link_cv'].toString(),
         fotoProfil: user['foto_profil'].toString(),
+        id_lamaran_pekerjaan: user['id_lamaran_pekerjaan'],
         statusLamaran: user['status_lamaran'].toString(),
         posisiDilamar: user['posisi_dilamar'].toString(),
       );

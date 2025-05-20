@@ -378,23 +378,33 @@ class _LamarPekerjaanState extends State<LamarPekerjaan> {
                     ),
                   ),
                   SizedBox(height: 20),
-                  if (user?[0][0]['curriculum_vitae'] != null &&
-                      user[0][0]['curriculum_vitae'].isNotEmpty)
+                  if (user?[0][0]['curriculum_vitae'] == null ||
+                      user[0][0]['curriculum_vitae'].isEmpty)
                     Text(
-                      "Anda sudah mengupload CV",
+                      "Anda belum mengupload CV",
                       style: TextStyle(
                         fontSize: 16,
                         fontStyle: FontStyle.italic,
-                        color: Colors.green, // Optional: Indicates success
+                        color: Colors.red,
+                      ),
+                    )
+                  else if (user?[0][0]['profile_pict'] == null ||
+                      user[0][0]['profile_pict'].isEmpty)
+                    Text(
+                      "Anda belum mengupload Foto Profil",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontStyle: FontStyle.italic,
+                        color: Colors.red,
                       ),
                     )
                   else
                     Text(
-                      "Harap lengkapi data diri Anda",
+                      "Anda sudah mengupload semua data",
                       style: TextStyle(
                         fontSize: 16,
                         fontStyle: FontStyle.italic,
-                        color: Colors.red, // Optional: Indicates an issue
+                        color: Colors.green,
                       ),
                     ),
                 ],
