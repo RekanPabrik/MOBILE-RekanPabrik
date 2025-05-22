@@ -27,7 +27,7 @@ class _CaripekerjaanState extends State<Caripekerjaan> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        "Find Your Next Job",
+                        "Temukan Pekerjaan",
                         style: TextStyle(
                             fontSize: 30,
                             fontWeight: FontWeight.bold,
@@ -45,7 +45,7 @@ class _CaripekerjaanState extends State<Caripekerjaan> {
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: "At ", // Teks awal
+                                text: "Di ", // Teks awal
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.normal,
@@ -63,7 +63,7 @@ class _CaripekerjaanState extends State<Caripekerjaan> {
                               ),
                               TextSpan(
                                 text:
-                                    ", we make it easy for you to find job opportunities that match your skills, experience, and career goals. Browse through our extensive listings and take the next step in your professional journey.",
+                                    ", kami memudahkan Anda menemukan peluang kerja yang sesuai dengan keterampilan, pengalaman, dan tujuan karier Anda. Telusuri daftar lengkap kami dan ambil langkah berikutnya dalam perjalanan karier Anda.",
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.normal,

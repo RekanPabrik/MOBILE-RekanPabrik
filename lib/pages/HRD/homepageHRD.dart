@@ -99,7 +99,7 @@ class _HomepagehrdState extends State<Homepagehrd> {
                           MainAxisAlignment.center, // Vertikal di tengah
                       children: [
                         Text(
-                          "Welcome back!",
+                          "Selamat Datang!",
                           style: TextStyle(
                             color: Colors.white,
                             fontFamily: 'poppins',
@@ -179,7 +179,7 @@ class _HomepagehrdState extends State<Homepagehrd> {
                     child: Container(
                       width: 250,
                       child: Text(
-                        "look for suitable candidates",
+                        "Mencari kandidat yang tepat?",
                         style: TextStyle(
                           color: Colors.black,
                           fontFamily: 'poppins',
@@ -195,11 +195,11 @@ class _HomepagehrdState extends State<Homepagehrd> {
                     child: Container(
                       width: 250,
                       child: Text(
-                        "get applicants easily",
+                        "Dapatkan kandidat yang sesuai dengan kriteria Anda",
                         style: TextStyle(
                           color: greyColor,
                           fontFamily: 'poppins',
-                          fontSize: 18,
+                          fontSize: 14,
                           fontWeight: FontWeight.w400,
                         ),
                         softWrap: true,
@@ -224,7 +224,7 @@ class _HomepagehrdState extends State<Homepagehrd> {
                         ),
                       ),
                       child: Text(
-                        'post application',
+                        'Unggah Lowongan',
                         style: TextStyle(
                           fontSize: 16,
                           color: primaryColor,
@@ -269,7 +269,7 @@ class _HomepagehrdState extends State<Homepagehrd> {
                     child: Container(
                       width: 250,
                       child: Text(
-                        "check your application",
+                        "Telusuri kandidat yang tepat",
                         style: TextStyle(
                           color: Colors.black,
                           fontFamily: 'poppins',
@@ -285,11 +285,11 @@ class _HomepagehrdState extends State<Homepagehrd> {
                     child: Container(
                       width: 250,
                       child: Text(
-                        "check to see if there are interested candidates",
+                        "Periksa kandidat yang sesuai dengan kriteria Anda",
                         style: TextStyle(
                           color: greyColor,
                           fontFamily: 'poppins',
-                          fontSize: 18,
+                          fontSize: 14,
                           fontWeight: FontWeight.w400,
                         ),
                         softWrap: true,
@@ -314,7 +314,7 @@ class _HomepagehrdState extends State<Homepagehrd> {
                         ),
                       ),
                       child: Text(
-                        'applicant post',
+                        'Unggah Lowongan',
                         style: TextStyle(
                           fontSize: 16,
                           color: primaryColor,

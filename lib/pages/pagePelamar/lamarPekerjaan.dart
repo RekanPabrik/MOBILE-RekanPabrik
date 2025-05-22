@@ -102,8 +102,8 @@ class _LamarPekerjaanState extends State<LamarPekerjaan> {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
       'job_channel',
-      'Job Application Notifications',
-      channelDescription: 'Notifications for job applications',
+      'Lamaran Pekerjaan',
+      channelDescription: 'Notifikasi untuk lamaran pekerjaan',
       importance: Importance.max,
       priority: Priority.high,
       ticker: 'ticker',
@@ -415,7 +415,7 @@ class _LamarPekerjaanState extends State<LamarPekerjaan> {
               children: [
                 SizedBox(height: 20),
                 Text(
-                  "I agree to follow the application rules set by the company.",
+                  "Saya setuju dengan peraturan yang ditetapkan oleh perusahaan",
                   style: TextStyle(
                       fontSize: 16,
                       fontStyle: FontStyle.italic,

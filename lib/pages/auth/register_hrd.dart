@@ -103,7 +103,7 @@ class _registerHrdState extends State<register_hrd> {
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text("Registration failed!"),
+              content: Text("Registrasi Gagal!"),
             ),
           );
         }
@@ -135,7 +135,7 @@ class _registerHrdState extends State<register_hrd> {
       'company_account_creation_channel',
       'Company Account Notifications',
       channelDescription:
-          'Notifications for successful company account creation',
+          'Notifikasi untuk pembuatan akun perusahaan',
       importance: Importance.high,
       priority: Priority.high,
       ticker: 'ticker',
@@ -160,7 +160,7 @@ class _registerHrdState extends State<register_hrd> {
       appBar: AppBar(
         backgroundColor: primaryColor,
         title: Text(
-          'Register HRD',
+          'Daftar Sebagai HRD',
           style: TextStyle(
             color: thirdColor,
             fontFamily: 'poppins',
@@ -179,7 +179,7 @@ class _registerHrdState extends State<register_hrd> {
                 height: 50,
               ),
               Text(
-                "Welcome Recruiter",
+                "Selamat Datang",
                 style: TextStyle(
                   color: thirdColor,
                   fontFamily: 'poppins',
@@ -189,7 +189,7 @@ class _registerHrdState extends State<register_hrd> {
                 textAlign: TextAlign.center,
               ),
               Text(
-                "Sign up to your account to continue",
+                "Lanjutkan untuk membuat akun perusahaan anda",
                 style: TextStyle(
                   color: greyColor,
                   fontFamily: 'poppins',
@@ -203,7 +203,7 @@ class _registerHrdState extends State<register_hrd> {
               ),
               companyname_input(
                   companyNameInputController: CompanyNameController,
-                  label: "Company Name",
+                  label: "Nama Perusahaan",
                   isEror: CompanyNameIsEror),
               if (CompanyNameErrorMessage.isNotEmpty)
                 Text(
@@ -239,12 +239,11 @@ class _registerHrdState extends State<register_hrd> {
                 child: Container(
                   width: 300,
                   child: Text(
-                    "by proceeding you confirm that you have read and agree to calendly terms of use and privacy notice",
+                    "Dengan melanjutkan Anda mengonfirmasi bahwa Anda telah membaca dan menyetujui ketentuan penggunaan dan pemberitahuan privasi kalender",
                     style: TextStyle(
                       color: greyColor,
                       fontFamily: 'poppins',
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 13
                     ),
                     textAlign: TextAlign.center,
                     softWrap: true,
@@ -275,7 +274,7 @@ class _registerHrdState extends State<register_hrd> {
                     ),
                   ),
                   child: Text(
-                    'Create Account',
+                    'Buat Akun',
                     style: TextStyle(
                       fontSize: 16,
                       color: primaryColor,

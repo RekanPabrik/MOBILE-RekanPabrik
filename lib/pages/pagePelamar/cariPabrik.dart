@@ -30,7 +30,7 @@ class _CariPabrik extends State<CariPabrik> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        "Find the Right Factory Job for You",
+                        "Temukan Perusahaan Terbaik",
                         style: TextStyle(
                             fontSize: 30,
                             fontWeight: FontWeight.bold,
@@ -43,7 +43,7 @@ class _CariPabrik extends State<CariPabrik> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        "Looking for the perfect factory job? Whether you're a skilled laborer or just starting your career, finding the right opportunity can be challenging. Our platform makes it easier by connecting job seekers with top manufacturing companies in the industry.",
+                        "Mencari pekerjaan pabrik yang sempurna? Baik Anda seorang pekerja terampil atau baru memulai karier, menemukan peluang yang tepat bisa jadi sulit. Platform kami mempermudahnya dengan menghubungkan para pencari kerja dengan perusahaan manufaktur terkemuka di industri ini.",
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.normal,
