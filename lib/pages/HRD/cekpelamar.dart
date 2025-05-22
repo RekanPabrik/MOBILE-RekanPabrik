@@ -26,7 +26,7 @@ class _CekpelamarState extends State<Cekpelamar> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        "Application Updates",
+                        "Pelamar",
                         style: TextStyle(
                             fontSize: 30,
                             fontWeight: FontWeight.bold,
@@ -45,7 +45,7 @@ class _CekpelamarState extends State<Cekpelamar> {
                             children: [
                               TextSpan(
                                 text:
-                                    "Stay Informed About Your Recruitment Process", // Teks yang di-bold
+                                    "Tetap Terinformasi Tentang Proses Perekrutan Anda ", // Teks yang di-bold
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight:
@@ -55,7 +55,7 @@ class _CekpelamarState extends State<Cekpelamar> {
                               ),
                               TextSpan(
                                 text:
-                                    "At RekanPabrik, we help you stay on top of every stage of your hiring process. From new applications to updates on shortlisted candidates, you’ll find all the latest information here. Manage your job postings efficiently and make informed decisions with real-time insights.",
+                                    "Di RekanPabrik, kami membantu Anda mengikuti setiap tahapan proses perekrutan. Dari lamaran baru hingga informasi terbaru tentang kandidat terpilih, Anda akan menemukan semua informasi terbaru di sini. Kelola lowongan pekerjaan Anda secara efisien dan buat keputusan yang tepat dengan wawasan waktu nyata.",
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.normal,

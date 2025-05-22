@@ -49,7 +49,7 @@ class _WellcomePageState extends State<WellcomePage> {
               height: 50,
             ),
             Text(
-              "Welcome",
+              "Selamat Datang",
               style: TextStyle(
                   color: thirdColor,
                   fontFamily:
@@ -62,9 +62,9 @@ class _WellcomePageState extends State<WellcomePage> {
               height: 10,
             ),
             Text(
-              "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,",
+              "Silahkan Login atau Buat Akun untuk melanjutkan",
               style: TextStyle(
-                  fontFamily: 'poppins', color: blackColor, fontSize: 18),
+                  fontFamily: 'poppins', color: blackColor, fontSize: 14),
               textAlign: TextAlign.center,
             ),
             SizedBox(
@@ -84,7 +84,7 @@ class _WellcomePageState extends State<WellcomePage> {
                   backgroundColor: thirdColor,
                 ),
                 child: Text(
-                  'Create Account',
+                  'Buat Akun',
                   style: TextStyle(
                     fontSize: 20,
                     color: primaryColor,
@@ -116,7 +116,7 @@ class _WellcomePageState extends State<WellcomePage> {
                       0, // Hilangkan bayangan agar benar-benar transparan
                 ),
                 child: Text(
-                  'Log In',
+                  'Masuk',
                   style: TextStyle(
                     fontSize: 20,
                     color: thirdColor, // Warna teks tetap

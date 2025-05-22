@@ -96,11 +96,11 @@ class _homePelamar extends State<home_pelamar> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "Welcome Back!",
+                          "Selamat Datang!",
                           style: TextStyle(
                             color: Colors.white,
                             fontFamily: 'poppins',
-                            fontSize: 14,
+                            fontSize: 18,
                             fontWeight: FontWeight.w400,
                           ),
                         ),
@@ -141,7 +141,7 @@ class _homePelamar extends State<home_pelamar> {
             ),
             Container(
               child: Text(
-                "Find your next company!",
+                "Temukan Pekerjaan Impian Anda",
                 style: TextStyle(
                     fontFamily: 'poppins',
                     fontSize: 20,
@@ -150,10 +150,10 @@ class _homePelamar extends State<home_pelamar> {
             ),
             Container(
               child: Text(
-                "Browse company profiles to find the right workplace for you. Learn about jobs, reviews, company culture, benefits and more.",
+                "Telusuri profil perusahaan untuk menemukan tempat kerja yang tepat bagi Anda. Pelajari tentang pekerjaan, ulasan, budaya perusahaan, dan banyak lagi.",
                 style: TextStyle(
                     fontFamily: 'poppins',
-                    fontSize: 15,
+                    fontSize: 16,
                     fontWeight: FontWeight.w400),
               ),
             ),
@@ -210,15 +210,15 @@ class _homePelamar extends State<home_pelamar> {
               height: 50,
             ),
             Containerhomepelamar(
-                textSatu: "“Hello” for Better career!",
-                textDua: "Get your dream career here",
+                textSatu: "“Hello” untuk pencari kerja!",
+                textDua: "Dapatkan pekerjaan impian Anda di sini",
                 imgLinkk: 'assets/img/Image1.png'),
             SizedBox(
               height: 20,
             ),
             Containerhomepelamar(
-                textSatu: "“Hello” Better matching candidate!",
-                textDua: "Get your company's employee candidates here",
+                textSatu: "“Hello” untuk perusahaan!",
+                textDua: "Dapatkan kandidat terbaik Anda di sini",
                 imgLinkk: 'assets/img/Image2.png'),
             SizedBox(
               height: 200,

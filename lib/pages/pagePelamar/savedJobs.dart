@@ -28,7 +28,7 @@ class _savedJobsState extends State<savedJobs> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        "Your Saved Jobs",
+                        "Pekerjaan Tersimpan",
                         style: TextStyle(
                             fontSize: 30,
                             fontWeight: FontWeight.bold,
@@ -47,7 +47,7 @@ class _savedJobsState extends State<savedJobs> {
                             children: [
                               TextSpan(
                                 text:
-                                    "Keep Track of Opportunities That Matter", // Teks yang di-bold
+                                    "Pantau Peluang yang Penting ", // Teks yang di-bold
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight:
@@ -57,7 +57,7 @@ class _savedJobsState extends State<savedJobs> {
                               ),
                               TextSpan(
                                 text:
-                                    "The jobs you've saved are right here, ready for when you’re ready to take the next step. At",
+                                    "Pekerjaan yang telah Anda simpan ada di sini, siap untuk saat Anda siap mengambil langkah berikutnya. Di",
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.normal,
@@ -75,7 +75,7 @@ class _savedJobsState extends State<savedJobs> {
                               ),
                               TextSpan(
                                 text:
-                                    ", we understand how important it is to stay organized in your job search. With your saved jobs, you can easily return to the opportunities that catch your eye.",
+                                    ", kami memahami betapa pentingnya tetap terorganisasi dalam pencarian pekerjaan Anda. Dengan pekerjaan yang tersimpan, Anda dapat dengan mudah kembali ke peluang yang menarik perhatian Anda.",
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.normal,

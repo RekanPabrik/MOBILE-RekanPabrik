@@ -61,8 +61,8 @@ class _ChangeProfilePagePelamarState extends State<ChangeProfilePagePelamar> {
 
     await flutterLocalNotificationsPlugin.show(
       0,
-      'Profile picture Updated',
-      'Your profile picture has been updated successfully!',
+      'Foto Profile Diperbarui',
+      'Foto profile Anda telah diperbarui dengan sukses!',
       platformChannelSpecifics,
     );
   }

@@ -74,8 +74,8 @@ class _loginPageState extends State<login_page> {
       } else {
         print('User profile retrieval failed: ${user['message']}');
         setState(() {
-          emailErrorMessage = "Username or password is incorrect";
-          passErrorMessage = "Username or password is incorrect";
+          emailErrorMessage = "Email atau password salah";
+          passErrorMessage = "Email atau password salah";
 
           mailIsEror = true;
           passIsEror = true;
@@ -85,9 +85,9 @@ class _loginPageState extends State<login_page> {
     } else {
       setState(() {
         emailErrorMessage =
-            response['massage'] ?? "Username or password is incorrect";
+            response['massage'] ?? "Email atau password salah";
         passErrorMessage =
-            response['massage'] ?? "Username or password is incorrect";
+            response['massage'] ?? "Email atau password salah";
 
         mailIsEror = true;
         passIsEror = true;
@@ -146,7 +146,7 @@ class _loginPageState extends State<login_page> {
               child: Container(
                 width: 250,
                 child: Text(
-                  "Welcome Back Users",
+                  "Selamat Datang!",
                   style: TextStyle(
                     color: thirdColor,
                     fontFamily: 'poppins',
@@ -194,7 +194,7 @@ class _loginPageState extends State<login_page> {
                   );
                 },
                 child: Text(
-                  'Forgot Password?',
+                  'Lupa Password?',
                   style: TextStyle(
                     fontSize: 16,
                     color: greyColor,
@@ -227,7 +227,7 @@ class _loginPageState extends State<login_page> {
                         ),
                       ),
                       child: Text(
-                        'Sign In',
+                        'Masuk',
                         style: TextStyle(
                           fontSize: 16,
                           color: primaryColor,
@@ -247,9 +247,9 @@ class _loginPageState extends State<login_page> {
                   fontWeight: FontWeight.w400,
                 ),
                 children: <TextSpan>[
-                  TextSpan(text: "Don't have an account? "),
+                  TextSpan(text: "Belum punya akun? "),
                   TextSpan(
-                    text: "Sign up now",
+                    text: "Daftar Sekarang",
                     style: TextStyle(
                       color: Colors.blue,
                       fontWeight: FontWeight.bold,

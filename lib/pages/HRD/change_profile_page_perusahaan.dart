@@ -63,8 +63,8 @@ class _ChangeprofilepageperusahaanState
 
     await flutterLocalNotificationsPlugin.show(
       0,
-      'Profile picture Updated',
-      'Your profile picture has been updated successfully!',
+      'Foto Profil Diperbarui',
+      'Foto profil Anda telah berhasil diperbarui.',
       platformChannelSpecifics,
     );
   }
@@ -95,14 +95,14 @@ class _ChangeprofilepageperusahaanState
     if (source == ImageSource.camera &&
         !(await Permission.camera.request().isGranted)) {
       openAppSettings();
-      print("Camera permission denied");
+      print("Izin kamera ditolak!");
       return;
     }
 
     if (source == ImageSource.gallery &&
         !(await Permission.photos.request().isGranted)) {
       openAppSettings();
-      print("Photo library permission denied");
+      print("Izin Galeri Foto ditolak!");
       return;
     }
 

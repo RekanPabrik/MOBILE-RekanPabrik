@@ -146,7 +146,7 @@ class _SearchBarPelamarPekerjaanState extends State<SearchBarPelamarPekerjaan> {
               });
             },
             decoration: InputDecoration(
-              hintText: "Search here...",
+              hintText: "Cari Disini...",
               hintStyle: TextStyle(color: Colors.grey),
               prefixIcon: Icon(Icons.search, color: Colors.black),
               border: OutlineInputBorder(

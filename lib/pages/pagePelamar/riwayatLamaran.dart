@@ -26,7 +26,7 @@ class _riwayatLamaranState extends State<riwayatLamaran> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        "Application History",
+                        "Riwayat Lamaran",
                         style: TextStyle(
                             fontSize: 30,
                             fontWeight: FontWeight.bold,
@@ -45,7 +45,7 @@ class _riwayatLamaranState extends State<riwayatLamaran> {
                             children: [
                               TextSpan(
                                 text:
-                                    "Your application history gives you a complete overview of the jobs you've applied for on Rekan Pabrik. Stay organized and up-to-date by reviewing the status of each application, from submission to final decision. We’re here to help you stay on top of your job search and keep moving forward.",
+                                    "Riwayat lamaran Anda memberikan gambaran lengkap tentang pekerjaan yang telah Anda lamar di Rekan Pabrik. Tetaplah teratur dan dapatkan informasi terkini dengan meninjau status setiap lamaran, mulai dari pengajuan hingga keputusan akhir. Kami siap membantu Anda tetap mengikuti perkembangan pencarian kerja dan terus maju.",
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.normal,

@@ -59,8 +59,8 @@ class _ResetpasspelamarState extends State<Resetpasspelamar> {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
       'password_channel',
-      'Password Reset Notifications',
-      channelDescription: 'Notifications for password reset',
+      'Notifikasi Reset Password',
+      channelDescription: 'Notifikasi untuk reset password',
       importance: Importance.high,
       priority: Priority.high,
       ticker: 'ticker',
@@ -72,8 +72,8 @@ class _ResetpasspelamarState extends State<Resetpasspelamar> {
 
     await flutterLocalNotificationsPlugin.show(
       0,
-      'Password Reset Successful',
-      'Your password has been reset successfully. Please use the new password to log in.',
+      'Reset Password Berhasil',
+      'Password Anda telah berhasil diubah!, Gunakan password baru anda untuk login',
       platformChannelSpecifics,
     );
   }

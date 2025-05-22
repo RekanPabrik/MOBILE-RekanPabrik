@@ -207,7 +207,7 @@ class _AlternativeSplashScreenState extends State<AlternativeSplashScreen>
                 ),
                 SizedBox(height: 20),
                 Text(
-                  'Connecting Industry Professionals',
+                  'Menghubungkan Profesional dengan Industri',
                   style: TextStyle(
                     color: thirdColor,
                     fontSize: 16,

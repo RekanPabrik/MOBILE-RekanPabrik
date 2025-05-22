@@ -113,7 +113,7 @@ class _registerPelamarState extends State<register_pelamar> {
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text("Registration failed!"),
+              content: Text("Registrasi Gagal!"),
             ),
           );
         }
@@ -143,7 +143,7 @@ class _registerPelamarState extends State<register_pelamar> {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
       'account_creation_channel',
-      'Account Creation Notifications',
+      'Notifikasi Pembuatan Akun',
       channelDescription: 'Notifications for successful account creation',
       importance: Importance.high,
       priority: Priority.high,
@@ -156,8 +156,8 @@ class _registerPelamarState extends State<register_pelamar> {
 
     await flutterLocalNotificationsPlugin.show(
       0,
-      'Account Created Successfully',
-      'Welcome to our platform! Your account has been created. Start exploring opportunities now!',
+      'Akun Berhasil Dibuat',
+      'Selamat datang di platform kami! Akun Anda telah dibuat. Mulailah menjelajahi peluang sekarang!',
       platformChannelSpecifics,
     );
   }
@@ -169,7 +169,7 @@ class _registerPelamarState extends State<register_pelamar> {
       appBar: AppBar(
         backgroundColor: primaryColor,
         title: Text(
-          'Register Page',
+          'Pendaftaran Pelamar',
           style: TextStyle(
             color: thirdColor,
             fontFamily: 'poppins',
@@ -193,7 +193,7 @@ class _registerPelamarState extends State<register_pelamar> {
               child: Container(
                 width: 250,
                 child: Text(
-                  "If you are a recruiter, please create an account here",
+                  "Jika anda seorang pelamar, silahkan daftar disini",
                   style: TextStyle(
                     color: greyColor,
                     fontFamily: 'poppins',
@@ -229,7 +229,7 @@ class _registerPelamarState extends State<register_pelamar> {
                   ),
                 ),
                 child: Text(
-                  'Create Account HRD',
+                  'Buat Akun Perusahaan',
                   style: TextStyle(
                     fontSize: 16,
                     color: primaryColor,
@@ -243,7 +243,7 @@ class _registerPelamarState extends State<register_pelamar> {
             ),
             // Teks Welcome Applicants
             Text(
-              "Welcome Applicants",
+              "Selamat Datang",
               style: TextStyle(
                 color: thirdColor,
                 fontFamily: 'poppins',
@@ -254,7 +254,7 @@ class _registerPelamarState extends State<register_pelamar> {
             ),
 
             Text(
-              "Sign up to your account to continue",
+              "Lanjutkan membuat akun anda untuk melamar pekerjaan",
               style: TextStyle(
                 color: greyColor,
                 fontFamily: 'poppins',
@@ -269,7 +269,7 @@ class _registerPelamarState extends State<register_pelamar> {
             ),
             name_input(
                 nameInputController: FNameController,
-                label: "First Name",
+                label: "Nama Depan",
                 isEror: FNameIsEror),
             if (FNameErrorMessage.isNotEmpty)
               Text(
@@ -280,7 +280,7 @@ class _registerPelamarState extends State<register_pelamar> {
             SizedBox(height: 10),
             name_input(
                 nameInputController: LNameController,
-                label: "Last Name",
+                label: "Nama Belakang",
                 isEror: LNameIsEror),
             if (LNameErrorMessage.isNotEmpty)
               Text(
@@ -320,12 +320,11 @@ class _registerPelamarState extends State<register_pelamar> {
               child: Container(
                 width: 300,
                 child: Text(
-                  "by proceeding you confirm that you have read and agree to calendly terms of use and privacy notice",
+                  "Dengan mendaftar, anda setuju dengan syarat dan ketentuan kami",
                   style: TextStyle(
                     color: greyColor,
                     fontFamily: 'poppins',
                     fontSize: 15,
-                    fontWeight: FontWeight.bold,
                   ),
                   textAlign: TextAlign.center,
                   softWrap: true,
@@ -356,7 +355,7 @@ class _registerPelamarState extends State<register_pelamar> {
                   ),
                 ),
                 child: Text(
-                  'Create Account',
+                  'Buat Akun',
                   style: TextStyle(
                     fontSize: 16,
                     color: primaryColor,
@@ -376,9 +375,9 @@ class _registerPelamarState extends State<register_pelamar> {
                   fontWeight: FontWeight.w400,
                 ),
                 children: <TextSpan>[
-                  TextSpan(text: "already have an account? "),
+                  TextSpan(text: "Sudah punya akun? "),
                   TextSpan(
-                    text: "login",
+                    text: "Masuk Sekarang",
                     style: TextStyle(
                       color: Colors.blue,
                       fontWeight: FontWeight.bold,

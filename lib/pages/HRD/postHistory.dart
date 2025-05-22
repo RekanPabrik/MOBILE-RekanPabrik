@@ -124,7 +124,7 @@ class _PosthistoryState extends State<Posthistory> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      "Job Post History",
+                      "Riwayat Unggahan Lamaran",
                       style: TextStyle(
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
@@ -140,7 +140,7 @@ class _PosthistoryState extends State<Posthistory> {
                         text: TextSpan(
                           children: [
                             TextSpan(
-                              text: "Track and Manage Your Job Listings ",
+                              text: "Lacak dan Kelola semua unggahan pekerjaan Anda ",
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -149,7 +149,7 @@ class _PosthistoryState extends State<Posthistory> {
                             ),
                             TextSpan(
                               text:
-                                  "With Rekan Pabrik, you have full visibility of all your past and current job postings. Easily access your job post history to review performance, track applications, and manage the status of each listing. Keep your hiring process organized and efficient with a comprehensive view of your recruitment efforts.",
+                                  "Dengan Rekan Pabrik, Anda memiliki visibilitas penuh atas semua lowongan pekerjaan Anda yang lalu dan saat ini. Akses riwayat lowongan pekerjaan Anda dengan mudah untuk meninjau kinerja, melacak lamaran, dan mengelola status setiap lowongan. Jaga proses perekrutan Anda tetap teratur dan efisien dengan tampilan komprehensif atas upaya perekrutan Anda.",
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.normal,

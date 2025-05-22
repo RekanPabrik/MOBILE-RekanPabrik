@@ -106,8 +106,8 @@ class _ProfilehrdState extends State<Profilehrd> {
 
     await flutterLocalNotificationsPlugin.show(
       0,
-      'Profile Updated',
-      'Your profile has been updated successfully!',
+      'Profil Diperbarui',
+      'Profil Anda telah berhasil diperbarui.',
       platformChannelSpecifics,
     );
   }
@@ -160,11 +160,11 @@ class _ProfilehrdState extends State<Profilehrd> {
         (route) => false, // Menghapus semua halaman sebelumnya di stack
       );
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Anda sudah log out")),
+        SnackBar(content: Text("Anda sudah keluar")),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Logout failed")),
+        SnackBar(content: Text("Gagal Keluar")),
       );
     }
   }
@@ -343,7 +343,7 @@ class _ProfilehrdState extends State<Profilehrd> {
                       logout();
                     },
                     child: Text(
-                      "log out",
+                      "Keluar",
                       style: TextStyle(
                           color: primaryColor,
                           fontWeight: FontWeight.bold,

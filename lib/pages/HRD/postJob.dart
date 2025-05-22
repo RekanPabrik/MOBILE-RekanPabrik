@@ -86,8 +86,8 @@ class _PostjobState extends State<Postjob> {
 
     await flutterLocalNotificationsPlugin.show(
       0,
-      'Job Posted',
-      'Your job has been posted successfully!',
+      'Lowongan Pekerjaan Diposting',
+      'Lowongan pekerjaan baru telah berhasil diposting.',
       platformChannelSpecifics,
     );
   }
@@ -151,7 +151,7 @@ class _PostjobState extends State<Postjob> {
                             Align(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                "Post a Job",
+                                "Unggah Lowongan Pekerjaan",
                                 style: TextStyle(
                                     fontSize: 30,
                                     fontWeight: FontWeight.bold,
@@ -170,7 +170,7 @@ class _PostjobState extends State<Postjob> {
                                     children: [
                                       TextSpan(
                                         text:
-                                            "Find the Perfect Candidate for Your Team",
+                                            "Temukan Kandidat Sempurna untuk Tim Anda ",
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
@@ -179,7 +179,7 @@ class _PostjobState extends State<Postjob> {
                                       ),
                                       TextSpan(
                                         text:
-                                            "At Rekan Pabrik, we make it easy for you to post job listings and connect with top talent in the industry. Whether you're looking to fill one role or expand your entire team, our platform gives you the tools to attract qualified candidates quickly and efficiently.",
+                                            "Di Rekan Pabrik, kami memudahkan Anda untuk memasang lowongan pekerjaan dan terhubung dengan talenta terbaik di industri ini. Baik Anda ingin mengisi satu posisi atau memperluas seluruh tim, platform kami memberi Anda alat untuk menarik kandidat yang memenuhi syarat dengan cepat dan efisien.",
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.normal,
@@ -215,7 +215,7 @@ class _PostjobState extends State<Postjob> {
                         controller: jobDetailsController,
                         maxLines: 5,
                         decoration: const InputDecoration(
-                          labelText: 'Job Details',
+                          labelText: 'Detail Pekerjaan',
                           border: OutlineInputBorder(),
                         ),
                       ),
@@ -224,7 +224,7 @@ class _PostjobState extends State<Postjob> {
                         controller: requirementsController,
                         maxLines: 5,
                         decoration: const InputDecoration(
-                          labelText: 'Requirements',
+                          labelText: 'Persyaratan',
                           border: OutlineInputBorder(),
                         ),
                       ),
@@ -253,7 +253,7 @@ class _PostjobState extends State<Postjob> {
                             ),
                           ),
                           child: Text(
-                            'post job',
+                            'Unggah Lowongan',
                             style: TextStyle(
                               fontSize: 16,
                               color: primaryColor,
@@ -277,7 +277,7 @@ class _PostjobState extends State<Postjob> {
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                  "Post a Job",
+                                  "Unggah Lowongan Pekerjaan",
                                   style: TextStyle(
                                       fontSize: 30,
                                       fontWeight: FontWeight.bold,
@@ -296,7 +296,7 @@ class _PostjobState extends State<Postjob> {
                                       children: [
                                         TextSpan(
                                           text:
-                                              "Find the Perfect Candidate for Your Team",
+                                              "Temukan Kandidat Sempurna untuk Tim Anda ",
                                           style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
@@ -305,7 +305,7 @@ class _PostjobState extends State<Postjob> {
                                         ),
                                         TextSpan(
                                           text:
-                                              "At Rekan Pabrik, we make it easy for you to post job listings and connect with top talent in the industry. Whether you're looking to fill one role or expand your entire team, our platform gives you the tools to attract qualified candidates quickly and efficiently.",
+                                              "Di Rekan Pabrik, kami memudahkan Anda untuk memasang lowongan pekerjaan dan terhubung dengan talenta terbaik di industri ini. Baik Anda ingin mengisi satu posisi atau memperluas seluruh tim, platform kami memberi Anda alat untuk menarik kandidat yang memenuhi syarat dengan cepat dan efisien.",
                                           style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.normal,
