@@ -103,7 +103,7 @@ class _registerHrdState extends State<register_hrd> {
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text("Registrasi Gagal!"),
+              content: Text("Ooppss, Email Sudah Terdaftar!"),
             ),
           );
         }
@@ -134,8 +134,7 @@ class _registerHrdState extends State<register_hrd> {
         AndroidNotificationDetails(
       'company_account_creation_channel',
       'Company Account Notifications',
-      channelDescription:
-          'Notifikasi untuk pembuatan akun perusahaan',
+      channelDescription: 'Notifikasi untuk pembuatan akun perusahaan',
       importance: Importance.high,
       priority: Priority.high,
       ticker: 'ticker',
@@ -241,10 +240,7 @@ class _registerHrdState extends State<register_hrd> {
                   child: Text(
                     "Dengan melanjutkan Anda mengonfirmasi bahwa Anda telah membaca dan menyetujui ketentuan penggunaan dan pemberitahuan privasi kalender",
                     style: TextStyle(
-                      color: greyColor,
-                      fontFamily: 'poppins',
-                      fontSize: 13
-                    ),
+                        color: greyColor, fontFamily: 'poppins', fontSize: 13),
                     textAlign: TextAlign.center,
                     softWrap: true,
                   ),

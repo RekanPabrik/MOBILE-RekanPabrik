@@ -113,7 +113,7 @@ class _registerPelamarState extends State<register_pelamar> {
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text("Registrasi Gagal!"),
+              content: Text("Ooppss, Email Sudah Terdaftar!"),
             ),
           );
         }
